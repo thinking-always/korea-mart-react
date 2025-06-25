@@ -24,7 +24,7 @@ function Login() {
       return;
     }
 
-    login(email);
+    login(email); // ✅ 이메일 넘겨야 user-${email}에서 찾음
     navigate('/');
   };
 

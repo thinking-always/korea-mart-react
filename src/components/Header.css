@@ -32,3 +32,28 @@
 .user {
   margin-left: 1rem;
 }
+.profile-button {
+  padding: 0.4rem 0.8rem;
+  background-color: #ff3d00;
+  color: white;
+  border-radius: 8px;
+  text-decoration: none;
+  margin: 0 0.5rem;
+  font-weight: bold;
+}
+.profile-button:hover {
+  background-color: #e23200;
+}
+.login-btn,
+.logout {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: white;
+  font-weight: bold;
+}
+
+.login-btn:hover,
+.logout:hover {
+  text-decoration: underline;
+}
