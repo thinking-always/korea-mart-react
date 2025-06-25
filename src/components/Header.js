@@ -1,11 +1,10 @@
-// src/components/Header.js
 import React, { useContext, useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import './Header.css';
 
 function Header() {
-  const { user, logout } = useContext(AuthContext);
+  const { user, logout, isAdmin } = useContext(AuthContext);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef();
   const navigate = useNavigate();
@@ -20,31 +19,12 @@ function Header() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const dropdownItemStyle = {
-    whiteSpace: 'nowrap',
-    padding: '0.5rem 1rem',
-    background: 'none',
-    border: 'none',
-    cursor: 'pointer',
-    display: 'block',
-    width: '100%',
-    textAlign: 'left'
-  };
-
   return (
     <header className="header">
-      {/* 왼쪽: 로고 */}
       <div className="header-left">
         <Link to="/" className="logo">🛒 Korea Mart</Link>
       </div>
-
-      {/* 오른쪽: 모든 메뉴 */}
-      <nav className="header-right" style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', marginLeft: 'auto' }}>
-        <Link to="/">Home</Link>
-        <Link to="/products">제품</Link>
-        <Link to="/cart">장바구니</Link>
-
-        {/* 프로필 드롭다운 */}
+      <nav className="header-right" style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
         {user && (
           <div className="profile-wrapper" ref={dropdownRef} style={{ position: 'relative' }}>
             <button
@@ -74,7 +54,7 @@ function Header() {
                     navigate('/profile');
                     setDropdownOpen(false);
                   }}
-                  style={dropdownItemStyle}
+                  style={{ whiteSpace: 'nowrap', padding: '0.5rem 1rem', background: 'none', border: 'none', cursor: 'pointer', display: 'block', width: '100%', textAlign: 'left' }}
                 >
                   내 정보
                 </button>
@@ -83,7 +63,7 @@ function Header() {
                     navigate('/cart');
                     setDropdownOpen(false);
                   }}
-                  style={dropdownItemStyle}
+                  style={{ whiteSpace: 'nowrap', padding: '0.5rem 1rem', background: 'none', border: 'none', cursor: 'pointer', display: 'block', width: '100%', textAlign: 'left' }}
                 >
                   장바구니
                 </button>
@@ -92,7 +72,7 @@ function Header() {
                     logout();
                     setDropdownOpen(false);
                   }}
-                  style={dropdownItemStyle}
+                  style={{ whiteSpace: 'nowrap', padding: '0.5rem 1rem', background: 'none', border: 'none', cursor: 'pointer', display: 'block', width: '100%', textAlign: 'left', color: 'red' }}
                 >
                   로그아웃
                 </button>
@@ -101,7 +81,11 @@ function Header() {
           </div>
         )}
 
-        {/* 비로그인 시 로그인 버튼 */}
+        <Link to="/">Home</Link>
+        <Link to="/products">제품</Link>
+        <Link to="/cart">장바구니</Link>
+        {isAdmin && <Link to="/admin" style={{ fontWeight: 'bold', color: '#fff' }}>상품관리</Link>}
+
         {!user && (
           <button
             onClick={() => navigate('/login')}
@@ -111,18 +95,12 @@ function Header() {
           </button>
         )}
 
-        {/* 로그인 시 추가 로그아웃 버튼 */}
+        {/* ✅ 드롭다운과는 별도로 오른쪽에 항상 보이는 로그아웃 버튼 */}
         {user && (
           <button
             onClick={logout}
             className="logout"
-            style={{
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              color: '#fff',
-              fontWeight: 'bold'
-            }}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#fff', fontWeight: 'bold' }}
           >
             로그아웃
           </button>

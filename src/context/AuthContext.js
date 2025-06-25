@@ -5,22 +5,46 @@ export const AuthContext = createContext();
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [isLoading, setIsLoading] = useState(true); // ✅ 여기 안에 넣어야 함
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const storedUser = localStorage.getItem('koreaMartUser');
     const storedAdmin = localStorage.getItem('koreaMartAdmin');
+
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
+
     if (storedAdmin === 'true') {
       setIsAdmin(true);
     }
-    setIsLoading(false); // ✅ useEffect 안에서 설정
+
+    // ✅ 관리자 계정이 없으면 자동 등록
+    if (!localStorage.getItem('user-admin1234')) {
+      localStorage.setItem(
+        'user-admin1234',
+        JSON.stringify({ name: 'admin', email: 'admin1234', password: '123456' })
+      );
+    }
+
+    setIsLoading(false);
   }, []);
 
-  const login = (email) => {
-    const stored = localStorage.getItem(`user-${email}`);
+  const login = (emailOrId) => {
+    // ✅ 관리자 로그인 처리
+    if (emailOrId === 'admin1234') {
+      const adminData = {
+        name: 'admin',
+        email: 'admin1234',
+      };
+      setUser(adminData);
+      setIsAdmin(true);
+      localStorage.setItem('koreaMartUser', JSON.stringify(adminData));
+      localStorage.setItem('koreaMartAdmin', 'true');
+      return;
+    }
+
+    const stored = localStorage.getItem(`user-${emailOrId}`);
     if (!stored) {
       alert('등록되지 않은 사용자입니다.');
       return;
@@ -31,16 +55,11 @@ export function AuthProvider({ children }) {
       name: parsed.name,
       email: parsed.email,
     };
-    setUser(userData);
-    localStorage.setItem('koreaMartUser', JSON.stringify(userData));
 
-    if (email === 'admin@koreamart.com') {
-      setIsAdmin(true);
-      localStorage.setItem('koreaMartAdmin', 'true');
-    } else {
-      setIsAdmin(false);
-      localStorage.removeItem('koreaMartAdmin');
-    }
+    setUser(userData);
+    setIsAdmin(false);
+    localStorage.setItem('koreaMartUser', JSON.stringify(userData));
+    localStorage.removeItem('koreaMartAdmin');
   };
 
   const logout = () => {
