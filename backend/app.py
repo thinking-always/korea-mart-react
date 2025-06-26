@@ -172,6 +172,18 @@ def serve_react(path):
 def custom_static(filename):
     return send_from_directory(os.path.join(BUILD_FOLDER, 'static'), filename)
 
+from flask import send_from_directory
+import os
+
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def serve_react_app(path):
+    if path != "" and os.path.exists(os.path.join(app.static_folder, path)):
+        return send_from_directory(app.static_folder, path)
+    else:
+        return send_from_directory(app.static_folder, 'index.html')
+
+
  # ✅ 실행
 if __name__ == '__main__':
     app.run(debug=True)
