@@ -1,21 +1,23 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
-from PIL import Image
+from PIL import Image, ImageOps
 import os, json
 
-app = Flask(__name__)
+# ✅ 경로 설정
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+UPLOAD_FOLDER = os.path.join(BASE_DIR, 'static', 'images')
+BANNER_FOLDER = os.path.join(BASE_DIR, 'static', 'banners')
+BUILD_FOLDER = os.path.join(BASE_DIR, 'build')  # ✅ React build 폴더
+
+app = Flask(__name__, static_folder=BUILD_FOLDER, static_url_path='')
 CORS(app)
 
-DATA_FILE = os.path.join(os.path.dirname(__file__), 'products.json')
+DATA_FILE = os.path.join(BASE_DIR, 'products.json')
+PROMO_CARDS_FILE = os.path.join(BASE_DIR, 'promo_cards.json')
 
-
-PROMO_CARDS_FILE = os.path.join(os.path.dirname(__file__), 'promo_cards.json')
-UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'static', 'images')
-BANNER_FOLDER = os.path.join(os.path.dirname(__file__), 'static', 'banners')
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
-# 폴더 자동 생성
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(BANNER_FOLDER, exist_ok=True)
 
@@ -25,9 +27,7 @@ app.config['BANNER_FOLDER'] = BANNER_FOLDER
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-# ✅ 포스터 업로드 + 리사이징
-from PIL import ImageOps  # 추가
-
+# ✅ 포스터 업로드 + 중앙 Crop 리사이징
 @app.route('/api/upload-banner', methods=['POST'])
 def upload_banner():
     if 'file' not in request.files:
@@ -46,47 +46,31 @@ def upload_banner():
             save_path = os.path.join(BANNER_FOLDER, filename)
             counter += 1
 
-        # ✅ 이미지 로딩 및 리사이징 (중앙 crop 후 resize)
         image = Image.open(file)
-        image = ImageOps.fit(image, (1200, 600), Image.LANCZOS, centering=(0.5, 0.5))  # ← 여기 중요
+        image = ImageOps.fit(image, (1200, 600), Image.LANCZOS, centering=(0.5, 0.5))
         image.save(save_path)
 
         return jsonify({'imageUrl': f'/static/banners/{filename}'})
-
     return jsonify({'error': 'Invalid file type'}), 400
 
-
-# ✅ 포스터 목록 조회
 @app.route('/api/banners', methods=['GET'])
 def get_banners():
-    try:
-        os.makedirs(BANNER_FOLDER, exist_ok=True)
-        files = os.listdir(BANNER_FOLDER)
-        urls = [f"/static/banners/{f}" for f in files if allowed_file(f)]
-        return jsonify(urls)
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+    files = os.listdir(BANNER_FOLDER)
+    urls = [f"/static/banners/{f}" for f in files if allowed_file(f)]
+    return jsonify(urls)
 
-# ✅ 포스터 삭제
 @app.route('/api/delete-banner', methods=['POST'])
 def delete_banner():
     data = request.get_json()
     filename = data.get('filename')
     if not filename:
         return jsonify({'error': 'No filename provided'}), 400
+    path = os.path.join(BANNER_FOLDER, filename)
+    if os.path.exists(path):
+        os.remove(path)
+        return jsonify({'message': 'Deleted'}), 200
+    return jsonify({'error': 'File not found'}), 404
 
-    try:
-        file_path = os.path.join(BANNER_FOLDER, filename)
-        if os.path.exists(file_path):
-            os.remove(file_path)
-            return jsonify({'message': 'Deleted'}), 200
-        else:
-            return jsonify({'error': 'File not found'}), 404
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-
-# ✅ 상품 전체 불러오기
 @app.route('/api/products', methods=['GET'])
 def get_products():
     if not os.path.exists(DATA_FILE):
@@ -94,7 +78,6 @@ def get_products():
     with open(DATA_FILE, 'r') as f:
         return jsonify(json.load(f))
 
-# ✅ 상품 추가
 @app.route('/api/products', methods=['POST'])
 def add_product():
     new_product = request.get_json()
@@ -103,16 +86,12 @@ def add_product():
     else:
         with open(DATA_FILE, 'r') as f:
             products = json.load(f)
-
     new_product['id'] = int(__import__('time').time() * 1000)
     products.append(new_product)
-
     with open(DATA_FILE, 'w') as f:
         json.dump(products, f)
-
     return jsonify(new_product), 201
 
-# ✅ 상품 삭제
 @app.route('/api/products/<int:product_id>', methods=['DELETE'])
 def delete_product(product_id):
     if not os.path.exists(DATA_FILE):
@@ -124,7 +103,6 @@ def delete_product(product_id):
         json.dump(products, f)
     return '', 204
 
-# ✅ 상품 수정
 @app.route('/api/products/<int:product_id>', methods=['PUT'])
 def update_product(product_id):
     updated_data = request.get_json()
@@ -132,23 +110,18 @@ def update_product(product_id):
         return jsonify({'error': 'Product not found'}), 404
     with open(DATA_FILE, 'r') as f:
         products = json.load(f)
-
     updated = None
     for product in products:
         if product['id'] == product_id:
             product.update(updated_data)
             updated = product
             break
-
     if updated is None:
         return jsonify({'error': 'Product not found'}), 404
-
     with open(DATA_FILE, 'w') as f:
         json.dump(products, f)
-
     return jsonify(updated)
 
-# ✅ 상품 이미지 업로드
 @app.route('/api/upload', methods=['POST'])
 def upload_image():
     if 'file' not in request.files:
@@ -158,8 +131,6 @@ def upload_image():
         return jsonify({'error': 'No selected file'}), 400
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
-
-        os.makedirs(UPLOAD_FOLDER, exist_ok=True)
         save_path = os.path.join(UPLOAD_FOLDER, filename)
 
         base, ext = os.path.splitext(filename)
@@ -171,11 +142,8 @@ def upload_image():
 
         file.save(save_path)
         return jsonify({'imageUrl': f'/static/images/{filename}'})
-
     return jsonify({'error': 'Invalid file type'}), 400
 
-
-# ✅ 카드 불러오기
 @app.route('/api/promo-cards', methods=['GET'])
 def get_promo_cards():
     if not os.path.exists(PROMO_CARDS_FILE):
@@ -183,7 +151,6 @@ def get_promo_cards():
     with open(PROMO_CARDS_FILE, 'r') as f:
         return jsonify(json.load(f))
 
-# ✅ 카드 전체 저장
 @app.route('/api/promo-cards', methods=['PUT'])
 def save_promo_cards():
     cards = request.get_json()
@@ -191,6 +158,20 @@ def save_promo_cards():
         json.dump(cards, f)
     return jsonify({'message': 'Promo cards saved successfully.'}), 200
 
+# ✅ 모든 경로는 React 앱으로 연결
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def serve_react(path):
+    if path != "" and os.path.exists(os.path.join(BUILD_FOLDER, path)):
+        return send_from_directory(BUILD_FOLDER, path)
+    else:
+        return send_from_directory(BUILD_FOLDER, 'index.html')
 
+# 🔥 이 라우트를 반드시 추가해야 static/images 경로가 작동함
+@app.route('/static/<path:filename>')
+def custom_static(filename):
+    return send_from_directory(os.path.join(BASE_DIR, 'static'), filename)
+
+# ✅ 실행
 if __name__ == '__main__':
     app.run(debug=True)

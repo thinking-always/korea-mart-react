@@ -34,10 +34,15 @@
 }
 
 .poster-image {
-  width: 100%;
-  height: 90%;
-  object-fit: contain; /* ✅ 이미지 비율 유지 + 전체 보이기 */
+  max-height: 100%;
+  max-width: 100%;
+  height: auto;
+  width: auto;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto;
 }
+
 
 .slide-btn {
   position: absolute;
@@ -60,3 +65,13 @@
 .slide-btn.right {
   right: 10px;
 }
+.slider-item {
+  flex: 0 0 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  background-color: #fff; /* 여백 배경 흰색 */
+}
+
