@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import BASE_URL from '../config'; // ✅ 환경별 URL 처리
+import BASE_URL from '../config';
 
 const PosterUploader = () => {
   const [file, setFile] = useState(null);
@@ -79,8 +79,7 @@ const PosterUploader = () => {
     }
   };
 
-  const handleDelete = async (imageUrl) => {
-    const filename = imageUrl.split('/').pop();
+  const handleDelete = async (filename) => {
     try {
       await axios.post(`${BASE_URL}/api/delete-banner`, { filename });
       alert('🗑 삭제 완료');
@@ -96,18 +95,58 @@ const PosterUploader = () => {
       <h3>🖼 포스터 추가</h3>
       <input type="file" accept="image/*" onChange={handleFileChange} />
       {previewUrl && (
-        <div>
-          <img src={previewUrl} alt="preview" style={{ width: '300px', marginTop: '10px' }} />
+        <div style={{ marginTop: '10px' }}>
+          <img src={previewUrl} alt="preview" style={{ width: '250px', borderRadius: '8px' }} />
         </div>
       )}
-      <button onClick={handleUpload}>업로드</button>
+      <button onClick={handleUpload} style={{ marginTop: '10px' }}>업로드</button>
 
       <h4 style={{ marginTop: '30px' }}>📂 기존 포스터 목록</h4>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-        {banners.map((url, idx) => (
-          <div key={idx} style={{ textAlign: 'center' }}>
-            <img src={`${BASE_URL}${url}`} alt="banner" style={{ width: '150px' }} />
-            <button onClick={() => handleDelete(url)}>삭제</button>
+      <div style={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: '15px',
+        marginTop: '10px'
+      }}>
+        {banners.map((banner, idx) => (
+          <div key={idx} style={{
+            width: '160px',
+            border: '1px solid #ddd',
+            borderRadius: '8px',
+            padding: '10px',
+            textAlign: 'center',
+            backgroundColor: '#fafafa',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
+          }}>
+            <img
+              src={`${BASE_URL}${banner.url}`}
+              alt={`banner-${idx}`}
+              style={{
+                width: '100%',
+                height: 'auto',
+                borderRadius: '5px',
+                marginBottom: '6px'
+              }}
+            />
+            <p style={{
+              fontSize: '12px',
+              wordBreak: 'break-word',
+              margin: '6px 0'
+            }}>{banner.filename}</p>
+            <button
+              onClick={() => handleDelete(banner.filename)}
+              style={{
+                fontSize: '12px',
+                padding: '3px 8px',
+                border: 'none',
+                borderRadius: '4px',
+                backgroundColor: '#ff3d00',
+                color: 'white',
+                cursor: 'pointer'
+              }}
+            >
+              삭제
+            </button>
           </div>
         ))}
       </div>

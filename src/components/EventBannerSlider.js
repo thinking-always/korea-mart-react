@@ -2,22 +2,26 @@
 import React, { useEffect, useRef, useState } from 'react';
 import '../styles/EventBanner.css';
 import axios from 'axios';
+import BASE_URL from '../config'; // ✅ 배포/로컬 모두 대응
 
 function EventBannerSlider() {
   const [images, setImages] = useState([]);
   const [index, setIndex] = useState(0);
   const intervalRef = useRef(null);
 
+  // ✅ 서버에서 배너 이미지 목록 받아오기
   useEffect(() => {
-    axios.get('http://localhost:5000/api/banners')
-      .then(res => setImages(res.data))
-      .catch(err => console.error('포스터 불러오기 실패', err));
+    axios
+      .get(`${BASE_URL}/api/banners`)
+      .then((res) => setImages(res.data))
+      .catch((err) => console.error('포스터 불러오기 실패', err));
   }, []);
 
+  // ✅ 자동 슬라이드 타이머 설정
   useEffect(() => {
     if (images.length > 1) {
       intervalRef.current = setInterval(() => {
-        setIndex(prev => (prev + 1) % images.length);
+        setIndex((prev) => (prev + 1) % images.length);
       }, 5000);
     }
     return () => clearInterval(intervalRef.current);
@@ -25,12 +29,12 @@ function EventBannerSlider() {
 
   const handlePrev = () => {
     clearInterval(intervalRef.current);
-    setIndex(prev => (prev - 1 + images.length) % images.length);
+    setIndex((prev) => (prev - 1 + images.length) % images.length);
   };
 
   const handleNext = () => {
     clearInterval(intervalRef.current);
-    setIndex(prev => (prev + 1) % images.length);
+    setIndex((prev) => (prev + 1) % images.length);
   };
 
   if (images.length === 0) {
@@ -49,11 +53,11 @@ function EventBannerSlider() {
             transition: 'transform 1s ease-in-out'
           }}
         >
-          {images.map((url, i) => (
+          {images.map((item, i) => (
             <div className="slider-item" key={i}>
               <img
-                src={`http://localhost:5000${url}`}
-                alt={`poster-${i}`}
+                src={`${BASE_URL}${item.url}`}  // ✅ 이미지 주소 연결
+                alt={item.filename || `poster-${i}`}
                 className="poster-image"
               />
             </div>

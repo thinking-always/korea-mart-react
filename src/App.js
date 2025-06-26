@@ -1,6 +1,5 @@
-// src/App.js
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route } from 'react-router-dom'; // ✅ 변경
 import Home from './pages/Home';
 import Products from './pages/Products';
 import ProductDetail from './pages/ProductDetail';
@@ -15,7 +14,7 @@ import { CartProvider } from './context/CartContext';
 import { AuthProvider } from './context/AuthContext';
 import Header from './components/Header';
 import RequireGuest from './components/RequireGuest';
-import RequireAdmin from './components/RequireAdmin'; // ✅ 추가
+import RequireAdmin from './components/RequireAdmin';
 import './index.css';
 
 function App() {

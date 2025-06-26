@@ -8,7 +8,7 @@ import os, json
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 UPLOAD_FOLDER = os.path.join(BASE_DIR, 'static', 'images')
 BANNER_FOLDER = os.path.join(BASE_DIR, 'static', 'banners')
-BUILD_FOLDER = os.path.join(BASE_DIR, 'build')  # ✅ React build 폴더
+BUILD_FOLDER = os.path.join(BASE_DIR, 'build')  # React build 폴더
 
 app = Flask(__name__, static_folder=BUILD_FOLDER, static_url_path='')
 CORS(app)
@@ -50,15 +50,27 @@ def upload_banner():
         image = ImageOps.fit(image, (1200, 600), Image.LANCZOS, centering=(0.5, 0.5))
         image.save(save_path)
 
-        return jsonify({'imageUrl': f'/static/banners/{filename}'})
+        return jsonify({
+            'imageUrl': f'/static/banners/{filename}',
+            'filename': filename
+        })
+
     return jsonify({'error': 'Invalid file type'}), 400
 
+# ✅ 포스터 리스트 불러오기
 @app.route('/api/banners', methods=['GET'])
 def get_banners():
     files = os.listdir(BANNER_FOLDER)
-    urls = [f"/static/banners/{f}" for f in files if allowed_file(f)]
-    return jsonify(urls)
+    banners = [
+        {
+            'filename': f,
+            'url': f"/static/banners/{f}"
+        }
+        for f in files if allowed_file(f)
+    ]
+    return jsonify(banners)
 
+# ✅ 포스터 삭제
 @app.route('/api/delete-banner', methods=['POST'])
 def delete_banner():
     data = request.get_json()
@@ -71,6 +83,7 @@ def delete_banner():
         return jsonify({'message': 'Deleted'}), 200
     return jsonify({'error': 'File not found'}), 404
 
+# ✅ 상품 데이터
 @app.route('/api/products', methods=['GET'])
 def get_products():
     if not os.path.exists(DATA_FILE):
@@ -122,6 +135,7 @@ def update_product(product_id):
         json.dump(products, f)
     return jsonify(updated)
 
+# ✅ 상품 이미지 업로드
 @app.route('/api/upload', methods=['POST'])
 def upload_image():
     if 'file' not in request.files:
@@ -144,6 +158,7 @@ def upload_image():
         return jsonify({'imageUrl': f'/static/images/{filename}'})
     return jsonify({'error': 'Invalid file type'}), 400
 
+# ✅ 프로모 카드
 @app.route('/api/promo-cards', methods=['GET'])
 def get_promo_cards():
     if not os.path.exists(PROMO_CARDS_FILE):
@@ -158,23 +173,17 @@ def save_promo_cards():
         json.dump(cards, f)
     return jsonify({'message': 'Promo cards saved successfully.'}), 200
 
-# ✅ 모든 경로는 React 앱으로 연결
-@app.route('/', defaults={'path': ''})
-@app.route('/<path:path>')
-def serve_react(path):
-    if path != "" and os.path.exists(os.path.join(BUILD_FOLDER, path)):
-        return send_from_directory(BUILD_FOLDER, path)
-    else:
-        return send_from_directory(BUILD_FOLDER, 'index.html')
+# ✅ 업로드 이미지 제공
+@app.route('/static/images/<filename>')
+def serve_uploaded_images(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
-# 🔥 이 라우트를 반드시 추가해야 static/images 경로가 작동함
-@app.route('/static/<path:filename>')
-def custom_static(filename):
-    return send_from_directory(os.path.join(BUILD_FOLDER, 'static'), filename)
+# ✅ 배너 이미지 제공
+@app.route('/static/banners/<filename>')
+def serve_banner_image(filename):
+    return send_from_directory(app.config['BANNER_FOLDER'], filename)
 
-from flask import send_from_directory
-import os
-
+# ✅ React SPA 라우팅 처리 (마지막에 위치해야 함)
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 def serve_react_app(path):
@@ -183,7 +192,6 @@ def serve_react_app(path):
     else:
         return send_from_directory(app.static_folder, 'index.html')
 
-
- # ✅ 실행
+# ✅ 실행
 if __name__ == '__main__':
     app.run(debug=True)
