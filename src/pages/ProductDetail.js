@@ -2,13 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import '../styles/ProductDetail.css';
+import BASE_URL from '../config'; // ✅ config에서 import
 
 const ProductDetail = () => {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
 
   useEffect(() => {
-    axios.get('http://localhost:5000/api/products')
+    axios.get(`${BASE_URL}/api/products`)
       .then(res => {
         const found = res.data.find(p => String(p.id) === id);
         setProduct(found);
@@ -27,14 +28,14 @@ const ProductDetail = () => {
 
         <div className="detail-main">
           <img
-            src={`http://localhost:5000${product.image}`}
+            src={`${BASE_URL}${product.image}`}
             alt={product.name}
             className="detail-image"
           />
 
           <div className="detail-info">
             <h2 className="detail-name">{product.name}</h2>
-            <p className="detail-price"> {product.price}</p>
+            <p className="detail-price">{product.price}</p>
             <button className="add-to-cart">장바구니에 담기</button>
           </div>
         </div>

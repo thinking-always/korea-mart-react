@@ -1,9 +1,9 @@
-// src/pages/Home.jsx
 import React, { useState, useContext, useEffect } from 'react';
 import '../styles/Home.css';
 import EventBannerSlider from '../components/EventBannerSlider';
 import PosterUploader from '../components/PosterUploader';
 import { AuthContext } from '../context/AuthContext';
+import BASE_URL from '../config'; // ✅ config에서 import
 
 const initialPromoCards = [
   { id: 1, title: 'Popular', description: 'Fan favorites of the week!', image: '' },
@@ -21,7 +21,7 @@ const Home = () => {
 
   // ✅ 서버에 저장하는 함수
   const saveCardsToServer = (cards) => {
-    fetch('http://localhost:5000/api/promo-cards', {
+    fetch(`${BASE_URL}/api/promo-cards`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(cards)
@@ -30,7 +30,7 @@ const Home = () => {
 
   // ✅ 서버에서 카드 불러오기 + 초기화 로직
   useEffect(() => {
-    fetch('http://localhost:5000/api/promo-cards')
+    fetch(`${BASE_URL}/api/promo-cards`)
       .then(res => res.json())
       .then(data => {
         if (data.length > 0) {
@@ -42,7 +42,6 @@ const Home = () => {
       })
       .catch(err => {
         console.error('Failed to load promo cards:', err);
-        // 서버 오류 시에도 초기 카드 세팅
         setPromoCards(initialPromoCards);
         saveCardsToServer(initialPromoCards);
       });
@@ -62,7 +61,7 @@ const Home = () => {
     const formData = new FormData();
     formData.append('file', file);
 
-    fetch('http://localhost:5000/api/upload', {
+    fetch(`${BASE_URL}/api/upload`, {
       method: 'POST',
       body: formData
     })
@@ -87,7 +86,7 @@ const Home = () => {
           <div className="product-card" key={card.id}>
             <div className="card-image">
               {card.image ? (
-                <img src={`http://localhost:5000${card.image}`} alt={card.title} />
+                <img src={`${BASE_URL}${card.image}`} alt={card.title} />
               ) : (
                 <div className="placeholder">No Image</div>
               )}

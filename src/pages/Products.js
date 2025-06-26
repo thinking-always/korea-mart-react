@@ -4,9 +4,11 @@ import { CartContext } from '../context/CartContext';
 import { AuthContext } from '../context/AuthContext';
 import axios from 'axios';
 import '../styles/Products.css';
+import BASE_URL from '../config'; // ✅ config에서 불러오기
 
 const categories = [
-  'all', 'noodles', 'beverages', 'sides', 'cosmetics', 'sauces', 'snacks', 'ready-meals', 'frozen', 'vegetables', 'cleaning', 'rice', 'daily'
+  'all', 'noodles', 'beverages', 'sides', 'cosmetics', 'sauces', 'snacks',
+  'ready-meals', 'frozen', 'vegetables', 'cleaning', 'rice', 'daily'
 ];
 
 function Products() {
@@ -14,10 +16,10 @@ function Products() {
   const { user } = useContext(AuthContext);
   const [products, setProducts] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [search, setSearch] = useState(''); // 🔍 검색 상태 추가
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
-    axios.get('http://localhost:5000/api/products')
+    axios.get(`${BASE_URL}/api/products`)
       .then(res => setProducts(res.data))
       .catch(err => console.error(err));
   }, []);
@@ -34,7 +36,6 @@ function Products() {
     reader.readAsDataURL(file);
   };
 
-  // ✅ 카테고리 + 검색 필터 동시 적용
   const filteredProducts = products.filter(product => {
     const matchCategory = selectedCategory === 'all' || product.category === selectedCategory;
     const matchSearch = product.name.toLowerCase().includes(search.toLowerCase());
@@ -45,7 +46,6 @@ function Products() {
     <div className="products-page">
       <h2>🛍 All Products</h2>
 
-      {/* 🔍 검색창 */}
       <div style={{ marginBottom: '1rem' }}>
         <input
           type="text"
@@ -63,7 +63,6 @@ function Products() {
       </div>
 
       <div className="products-layout">
-        {/* 왼쪽: 카테고리 */}
         <div className="category-sidebar">
           {categories.map(cat => (
             <button
@@ -76,13 +75,12 @@ function Products() {
           ))}
         </div>
 
-        {/* 오른쪽: 제품 카드 */}
         <div className="product-grid">
           {filteredProducts.map(product => (
             <div className="product-card" key={product.id}>
               <Link to={`/products/${product.id}`} className="card-image">
                 {product.image ? (
-                  <img src={`http://localhost:5000${product.image}`} alt={product.name} />
+                  <img src={`${BASE_URL}${product.image}`} alt={product.name} />
                 ) : (
                   <div className="placeholder">No Image</div>
                 )}

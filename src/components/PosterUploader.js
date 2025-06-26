@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import BASE_URL from '../config'; // ✅ 환경별 URL 처리
 
 const PosterUploader = () => {
   const [file, setFile] = useState(null);
@@ -11,7 +12,7 @@ const PosterUploader = () => {
   }, []);
 
   const fetchBanners = () => {
-    axios.get('http://localhost:5000/api/banners')
+    axios.get(`${BASE_URL}/api/banners`)
       .then(res => setBanners(res.data))
       .catch(err => console.error(err));
   };
@@ -65,7 +66,7 @@ const PosterUploader = () => {
     const formData = new FormData();
     formData.append('file', file);
     try {
-      await axios.post('http://localhost:5000/api/upload-banner', formData, {
+      await axios.post(`${BASE_URL}/api/upload-banner`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       alert('✅ 포스터 업로드 성공');
@@ -81,7 +82,7 @@ const PosterUploader = () => {
   const handleDelete = async (imageUrl) => {
     const filename = imageUrl.split('/').pop();
     try {
-      await axios.post('http://localhost:5000/api/delete-banner', { filename });
+      await axios.post(`${BASE_URL}/api/delete-banner`, { filename });
       alert('🗑 삭제 완료');
       fetchBanners();
     } catch (err) {
@@ -105,7 +106,7 @@ const PosterUploader = () => {
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
         {banners.map((url, idx) => (
           <div key={idx} style={{ textAlign: 'center' }}>
-            <img src={`http://localhost:5000${url}`} alt="banner" style={{ width: '150px' }} />
+            <img src={`${BASE_URL}${url}`} alt="banner" style={{ width: '150px' }} />
             <button onClick={() => handleDelete(url)}>삭제</button>
           </div>
         ))}
