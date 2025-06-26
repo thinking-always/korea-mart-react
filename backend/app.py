@@ -170,7 +170,7 @@ def serve_react(path):
 # 🔥 이 라우트를 반드시 추가해야 static/images 경로가 작동함
 @app.route('/static/<path:filename>')
 def custom_static(filename):
-    return send_from_directory(os.path.join(BASE_DIR, 'static'), filename)
+    return send_from_directory(os.path.join(BUILD_FOLDER, 'static'), filename)
 
 # # ✅ 실행
 # if __name__ == '__main__':
