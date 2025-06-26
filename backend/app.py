@@ -7,7 +7,10 @@ import os, json
 app = Flask(__name__)
 CORS(app)
 
-DATA_FILE = 'products.json'
+DATA_FILE = os.path.join(os.path.dirname(__file__), 'products.json')
+
+
+PROMO_CARDS_FILE = os.path.join(os.path.dirname(__file__), 'promo_cards.json')
 UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'static', 'images')
 BANNER_FOLDER = os.path.join(os.path.dirname(__file__), 'static', 'banners')
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
@@ -170,6 +173,24 @@ def upload_image():
         return jsonify({'imageUrl': f'/static/images/{filename}'})
 
     return jsonify({'error': 'Invalid file type'}), 400
+
+
+# ✅ 카드 불러오기
+@app.route('/api/promo-cards', methods=['GET'])
+def get_promo_cards():
+    if not os.path.exists(PROMO_CARDS_FILE):
+        return jsonify([])
+    with open(PROMO_CARDS_FILE, 'r') as f:
+        return jsonify(json.load(f))
+
+# ✅ 카드 전체 저장
+@app.route('/api/promo-cards', methods=['PUT'])
+def save_promo_cards():
+    cards = request.get_json()
+    with open(PROMO_CARDS_FILE, 'w') as f:
+        json.dump(cards, f)
+    return jsonify({'message': 'Promo cards saved successfully.'}), 200
+
 
 if __name__ == '__main__':
     app.run(debug=True)

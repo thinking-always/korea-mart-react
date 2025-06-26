@@ -1,56 +1,93 @@
 // src/pages/Home.jsx
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import '../styles/Home.css';
 import EventBannerSlider from '../components/EventBannerSlider';
 import PosterUploader from '../components/PosterUploader';
 import { AuthContext } from '../context/AuthContext';
 
-const initialProducts = [
-  { id: 1, name: 'Product 1', description: 'Description 1', image: '' },
-  { id: 2, name: 'Product 2', description: 'Description 2', image: '' },
-  { id: 3, name: 'Product 3', description: 'Description 3', image: '' },
-  { id: 4, name: 'Product 4', description: 'Description 4', image: '' },
-  { id: 5, name: 'Product 5', description: 'Description 5', image: '' },
-  { id: 6, name: 'Product 6', description: 'Description 6', image: '' },
+const initialPromoCards = [
+  { id: 1, title: 'Popular', description: 'Fan favorites of the week!', image: '' },
+  { id: 2, title: 'On Sale', description: 'Best deals, just for you!', image: '' },
+  { id: 3, title: 'New', description: 'Fresh arrivals you’ll love!', image: '' },
+  { id: 4, title: 'Cosmetics', description: 'Glow up with top beauty picks!', image: '' },
+  { id: 5, title: 'Sauces', description: 'Turn up the flavor!', image: '' },
+  { id: 6, title: 'Ice Cream', description: 'Cool treats for hot days!', image: '' }
 ];
 
 const Home = () => {
-  const [products, setProducts] = useState(initialProducts);
   const { user } = useContext(AuthContext);
   const isAdmin = user?.name === 'admin';
+  const [promoCards, setPromoCards] = useState([]);
 
-  const handleInputChange = (id, field, value) => {
-    setProducts(prev =>
-      prev.map(product =>
-        product.id === id ? { ...product, [field]: value } : product
-      )
-    );
+  // ✅ 서버에 저장하는 함수
+  const saveCardsToServer = (cards) => {
+    fetch('http://localhost:5000/api/promo-cards', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(cards)
+    }).catch(err => console.error('Failed to save promo cards:', err));
   };
 
+  // ✅ 서버에서 카드 불러오기 + 초기화 로직
+  useEffect(() => {
+    fetch('http://localhost:5000/api/promo-cards')
+      .then(res => res.json())
+      .then(data => {
+        if (data.length > 0) {
+          setPromoCards(data);
+        } else {
+          setPromoCards(initialPromoCards);
+          saveCardsToServer(initialPromoCards);
+        }
+      })
+      .catch(err => {
+        console.error('Failed to load promo cards:', err);
+        // 서버 오류 시에도 초기 카드 세팅
+        setPromoCards(initialPromoCards);
+        saveCardsToServer(initialPromoCards);
+      });
+  }, []);
+
+  // ✅ 텍스트 수정
+  const handleInputChange = (id, field, value) => {
+    const updated = promoCards.map(card =>
+      card.id === id ? { ...card, [field]: value } : card
+    );
+    setPromoCards(updated);
+    saveCardsToServer(updated);
+  };
+
+  // ✅ 이미지 업로드
   const handleImageUpload = (id, file) => {
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setProducts(prev =>
-        prev.map(product =>
-          product.id === id ? { ...product, image: reader.result } : product
-        )
-      );
-    };
-    reader.readAsDataURL(file);
+    const formData = new FormData();
+    formData.append('file', file);
+
+    fetch('http://localhost:5000/api/upload', {
+      method: 'POST',
+      body: formData
+    })
+      .then(res => res.json())
+      .then(data => {
+        const updated = promoCards.map(card =>
+          card.id === id ? { ...card, image: data.imageUrl } : card
+        );
+        setPromoCards(updated);
+        saveCardsToServer(updated);
+      })
+      .catch(err => console.error('Image upload failed:', err));
   };
 
   return (
     <div className="page-wrapper">
       <EventBannerSlider />
-
       {isAdmin && <PosterUploader />}
 
       <div className="product-grid">
-        {products.map((product) => (
-          <div className="product-card" key={product.id}>
+        {promoCards.map((card) => (
+          <div className="product-card" key={card.id}>
             <div className="card-image">
-              {product.image ? (
-                <img src={product.image} alt={product.name} />
+              {card.image ? (
+                <img src={`http://localhost:5000${card.image}`} alt={card.title} />
               ) : (
                 <div className="placeholder">No Image</div>
               )}
@@ -58,7 +95,7 @@ const Home = () => {
                 <input
                   type="file"
                   accept="image/*"
-                  onChange={(e) => handleImageUpload(product.id, e.target.files[0])}
+                  onChange={(e) => handleImageUpload(card.id, e.target.files[0])}
                 />
               )}
             </div>
@@ -67,20 +104,20 @@ const Home = () => {
                 <>
                   <input
                     type="text"
-                    value={product.name}
-                    onChange={(e) => handleInputChange(product.id, 'name', e.target.value)}
-                    placeholder="Name"
+                    value={card.title}
+                    onChange={(e) => handleInputChange(card.id, 'title', e.target.value)}
+                    placeholder="Title"
                   />
                   <textarea
-                    value={product.description}
-                    onChange={(e) => handleInputChange(product.id, 'description', e.target.value)}
+                    value={card.description}
+                    onChange={(e) => handleInputChange(card.id, 'description', e.target.value)}
                     placeholder="Description"
                   />
                 </>
               ) : (
                 <>
-                  <h4>{product.name}</h4>
-                  <p>{product.description}</p>
+                  <h4>{card.title}</h4>
+                  <p>{card.description}</p>
                 </>
               )}
             </div>

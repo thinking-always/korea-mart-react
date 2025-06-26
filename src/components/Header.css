@@ -1,8 +1,9 @@
 .header {
   position: sticky;
   top: 0;
-  background: #ff3d00;
-  color: white;
+  background: #ffffff; /* 완전한 흰색 */
+  border-bottom: 1px solid #ddd; /* 아래 구분선 추가 */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* 부드러운 그림자 */
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -13,14 +14,20 @@
 .logo {
   font-size: 1.5rem;
   font-weight: bold;
-  color: white;
+  color: #000; /* 검정색 글자 */
+}
+
+.logo img {
+  height: 60px; /* 크기 키움 */
+  object-fit: contain;
 }
 
 .header-right a,
 .logout {
   margin-left: 1rem;
-  color: white;
+  color: #111; /* 어두운 회색/검정 */
   font-weight: bold;
+  text-decoration: none;
 }
 
 .logout {
@@ -32,6 +39,7 @@
 .user {
   margin-left: 1rem;
 }
+
 .profile-button {
   padding: 0.4rem 0.8rem;
   background-color: #ff3d00;
@@ -44,16 +52,23 @@
 .profile-button:hover {
   background-color: #e23200;
 }
+
 .login-btn,
 .logout {
   background: none;
   border: none;
   cursor: pointer;
-  color: white;
+  color: #111; /* 글자 진하게 */
   font-weight: bold;
 }
 
 .login-btn:hover,
 .logout:hover {
   text-decoration: underline;
+}
+
+.nav a {
+  margin-left: 20px;
+  text-decoration: none;
+  color: #111; /* 검정 */
 }

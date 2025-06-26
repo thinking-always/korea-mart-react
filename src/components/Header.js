@@ -2,6 +2,8 @@ import React, { useContext, useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import './Header.css';
+import logo from '../assets/logo.png';
+
 
 function Header() {
   const { user, logout, isAdmin } = useContext(AuthContext);
@@ -22,7 +24,15 @@ function Header() {
   return (
     <header className="header">
       <div className="header-left">
-        <Link to="/" className="logo">🛒 Korea Mart</Link>
+        <Link to="/" className="logo">
+          <img
+            src={logo}
+            alt="Korea Mart Logo"
+            style={{ width: '100px', height: '60px', objectFit: 'contain' }}
+          />
+        </Link>
+
+
       </div>
       <nav className="header-right" style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
         {user && (
@@ -84,7 +94,7 @@ function Header() {
         <Link to="/">Home</Link>
         <Link to="/products">제품</Link>
         <Link to="/cart">장바구니</Link>
-        {isAdmin && <Link to="/admin" style={{ fontWeight: 'bold', color: '#fff' }}>상품관리</Link>}
+        {isAdmin && <Link to="/admin" style={{ fontWeight: 'bold', color: '#111' }}>상품관리</Link>}
 
         {!user && (
           <button
@@ -100,7 +110,7 @@ function Header() {
           <button
             onClick={logout}
             className="logout"
-            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#fff', fontWeight: 'bold' }}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#111', fontWeight: 'bold' }}
           >
             로그아웃
           </button>
