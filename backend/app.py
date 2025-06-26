@@ -172,6 +172,6 @@ def serve_react(path):
 def custom_static(filename):
     return send_from_directory(os.path.join(BASE_DIR, 'static'), filename)
 
-# ✅ 실행
-if __name__ == '__main__':
-    app.run(debug=True)
+# # ✅ 실행
+# if __name__ == '__main__':
+#     app.run(debug=True)
