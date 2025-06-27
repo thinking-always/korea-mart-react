@@ -194,5 +194,5 @@ def serve_react_app(path):
         return send_from_directory(app.static_folder, 'index.html')
 
 # ✅ 실행
-if __name__ == '__main__':
-    app.run(debug=True)
+# if __name__ == '__main__':
+#     app.run(debug=True)
