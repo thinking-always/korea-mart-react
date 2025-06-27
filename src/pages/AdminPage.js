@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import '../styles/Admin.css';
 import axios from 'axios';
-import BASE_URL from '../config'; // ✅ 환경에 따라 주소 자동 설정
+import BASE_URL from '../config';
 
 const AdminPage = () => {
   const [products, setProducts] = useState([]);
@@ -64,7 +64,7 @@ const AdminPage = () => {
       const res = await axios.post(`${BASE_URL}/api/upload`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
-      setImage(res.data.imageUrl);
+      setImage(res.data.imageUrl); // Cloudinary URL 저장
     } catch (err) {
       console.error('이미지 업로드 실패:', err);
     }
@@ -157,7 +157,7 @@ const AdminPage = () => {
         <div className="product-list">
           {filteredProducts.map(product => (
             <div className="product-row" key={product.id}>
-              <img src={`${BASE_URL}${product.image}`} alt={product.name} className="row-image" />
+              <img src={product.image} alt={product.name} className="row-image" />
               <div className="row-info">
                 <strong>{product.name}</strong> | {product.price} | [{product.category}]
               </div>
@@ -174,7 +174,7 @@ const AdminPage = () => {
           <input type="text" placeholder="상품명" value={name} onChange={e => setName(e.target.value)} />
           <input type="text" placeholder="가격" value={price} onChange={e => setPrice(e.target.value)} />
           <input type="file" onChange={handleImageUpload} />
-          {image && <img src={`${BASE_URL}${image}`} alt="미리보기" style={{ width: '100px' }} />}
+          {image && <img src={image} alt="미리보기" style={{ width: '100px' }} />}
           <select value={category} onChange={e => setCategory(e.target.value)}>
             <option value="">카테고리 선택</option>
             {categories.slice(1).map(c => (
@@ -191,7 +191,7 @@ const AdminPage = () => {
           <div className="edit-popup-card">
             <h3>상품 수정</h3>
             <div className="edit-preview-image">
-              <img src={`${BASE_URL}${editForm.image}`} alt="미리보기" style={{ width: '300px', height: 'auto', marginBottom: '10px' }} />
+              <img src={editForm.image} alt={editForm.name} />
             </div>
             <p>현재 파일: {editForm.filename}</p>
             <input type="file" onChange={handleEditImageUpload} />

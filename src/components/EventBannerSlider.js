@@ -1,23 +1,27 @@
-// src/components/EventBannerSlider.jsx
 import React, { useEffect, useRef, useState } from 'react';
 import '../styles/EventBanner.css';
 import axios from 'axios';
-import BASE_URL from '../config'; // ✅ 배포/로컬 모두 대응
+import BASE_URL from '../config';
 
 function EventBannerSlider() {
   const [images, setImages] = useState([]);
   const [index, setIndex] = useState(0);
   const intervalRef = useRef(null);
 
-  // ✅ 서버에서 배너 이미지 목록 받아오기
+  // ✅ Cloudinary URL만 필터링해서 받아오기
   useEffect(() => {
     axios
       .get(`${BASE_URL}/api/banners`)
-      .then((res) => setImages(res.data))
+      .then((res) => {
+        const filtered = res.data.filter(item =>
+          item.url && item.url.startsWith('https://res.cloudinary.com')
+        );
+        setImages(filtered);
+      })
       .catch((err) => console.error('포스터 불러오기 실패', err));
   }, []);
 
-  // ✅ 자동 슬라이드 타이머 설정
+  // ✅ 자동 슬라이드 타이머
   useEffect(() => {
     if (images.length > 1) {
       intervalRef.current = setInterval(() => {
@@ -56,7 +60,7 @@ function EventBannerSlider() {
           {images.map((item, i) => (
             <div className="slider-item" key={i}>
               <img
-                src={`${BASE_URL}${item.url}`}  // ✅ 이미지 주소 연결
+                src={item.url}
                 alt={item.filename || `poster-${i}`}
                 className="poster-image"
               />

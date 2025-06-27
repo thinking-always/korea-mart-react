@@ -1,90 +1,117 @@
 from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
+import os, json, cloudinary, cloudinary.uploader
 from werkzeug.utils import secure_filename
-from PIL import Image, ImageOps
-import os, json
 
-# ✅ 경로 설정
+# ✅ Cloudinary 설정
+cloudinary.config(
+    cloud_name='dnhoeuj4t',
+    api_key='118544432646378',
+    api_secret='N-g_TvykAHzLHgJM2yfNkbwHyjY'
+)
+
+# ✅ 기본 설정
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-UPLOAD_FOLDER = os.path.join(BASE_DIR, 'static', 'images')
-BANNER_FOLDER = os.path.join(BASE_DIR, 'static', 'banners')
 BUILD_FOLDER = os.path.join(BASE_DIR, 'build')  # React build 폴더
-
-app = Flask(__name__, static_folder=BUILD_FOLDER, static_url_path='')
-CORS(app, origins=["https://korea-mart-react-3.onrender.com"])
-
-
 DATA_FILE = os.path.join(BASE_DIR, 'products.json')
 PROMO_CARDS_FILE = os.path.join(BASE_DIR, 'promo_cards.json')
-
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-os.makedirs(BANNER_FOLDER, exist_ok=True)
+app = Flask(__name__, static_folder=BUILD_FOLDER, static_url_path='')
+#CORS(app, origins=["https://korea-mart-react-3.onrender.com"])
+CORS(app, origins=["http://localhost:3000", "http://localhost:5000","https://korea-mart-react-3.onrender.com"])
 
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['BANNER_FOLDER'] = BANNER_FOLDER
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-# ✅ 포스터 업로드 + 중앙 Crop 리사이징
+# ✅ 상품 이미지 업로드 → Cloudinary
+@app.route('/api/upload', methods=['POST'])
+def upload_image():
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file part'}), 400
+    file = request.files['file']
+    if file.filename == '' or not allowed_file(file.filename):
+        return jsonify({'error': 'Invalid file'}), 400
+    result = cloudinary.uploader.upload(file)
+    return jsonify({'imageUrl': result['secure_url']})
+
+# ✅ 배너 이미지 업로드 → Cloudinary
 @app.route('/api/upload-banner', methods=['POST'])
 def upload_banner():
     if 'file' not in request.files:
         return jsonify({'error': 'No file part'}), 400
     file = request.files['file']
-    if file.filename == '':
-        return jsonify({'error': 'No selected file'}), 400
-    if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        save_path = os.path.join(BANNER_FOLDER, filename)
+    if file.filename == '' or not allowed_file(file.filename):
+        return jsonify({'error': 'Invalid file'}), 400
 
-        base, ext = os.path.splitext(filename)
-        counter = 1
-        while os.path.exists(save_path):
-            filename = f"{base}_{counter}{ext}"
-            save_path = os.path.join(BANNER_FOLDER, filename)
-            counter += 1
+    try:
+        result = cloudinary.uploader.upload(file, folder='banners')
+        new_banner = {
+            'url': result['secure_url'],
+            'filename': result['public_id'],
+            'title': '',
+            'description': ''
+        }
 
-        image = Image.open(file)
-        image = ImageOps.fit(image, (1200, 600), Image.LANCZOS, centering=(0.5, 0.5))
-        image.save(save_path)
+        # 기존 목록 불러오기
+        if os.path.exists(PROMO_CARDS_FILE):
+            with open(PROMO_CARDS_FILE, 'r') as f:
+                banners = json.load(f)
+        else:
+            banners = []
 
-        return jsonify({
-            'imageUrl': f'/static/banners/{filename}',
-            'filename': filename
-        })
+        banners.append(new_banner)
 
-    return jsonify({'error': 'Invalid file type'}), 400
+        # 덮어쓰기
+        with open(PROMO_CARDS_FILE, 'w') as f:
+            json.dump(banners, f)
 
-# ✅ 포스터 리스트 불러오기
+        return jsonify(new_banner), 200
+    except Exception as e:
+        return jsonify({'error': f'Cloudinary upload failed: {str(e)}'}), 500
+
+
+
+# ✅ 배너 리스트 → promo_cards.json에서 관리
 @app.route('/api/banners', methods=['GET'])
 def get_banners():
-    files = os.listdir(BANNER_FOLDER)
-    banners = [
-        {
-            'filename': f,
-            'url': f"/static/banners/{f}"
-        }
-        for f in files if allowed_file(f)
-    ]
-    return jsonify(banners)
+    if not os.path.exists(PROMO_CARDS_FILE):
+        return jsonify([])
+    with open(PROMO_CARDS_FILE, 'r') as f:
+        return jsonify(json.load(f))
 
-# ✅ 포스터 삭제
+# ✅ 배너 삭제 (json 목록에서만 삭제)
 @app.route('/api/delete-banner', methods=['POST'])
 def delete_banner():
     data = request.get_json()
-    filename = data.get('filename')
+    filename = data.get('filename')  # ex) "banners/abc123"
+
     if not filename:
         return jsonify({'error': 'No filename provided'}), 400
-    path = os.path.join(BANNER_FOLDER, filename)
-    if os.path.exists(path):
-        os.remove(path)
-        return jsonify({'message': 'Deleted'}), 200
-    return jsonify({'error': 'File not found'}), 404
 
-# ✅ 상품 데이터
+    try:
+        # 🔥 Cloudinary에서 이미지 삭제
+        cloudinary.uploader.destroy(filename)
+    except Exception as e:
+        return jsonify({'error': f'Cloudinary deletion failed: {str(e)}'}), 500
+
+    # JSON에서 항목 제거
+    if not os.path.exists(PROMO_CARDS_FILE):
+        return jsonify({'error': 'No promo cards found'}), 404
+
+    with open(PROMO_CARDS_FILE, 'r') as f:
+        cards = json.load(f)
+
+    cards = [card for card in cards if card.get('filename') != filename]
+
+    with open(PROMO_CARDS_FILE, 'w') as f:
+        json.dump(cards, f)
+
+    return jsonify({'message': 'Deleted'}), 200
+
+
+# ✅ 상품 CRUD
 @app.route('/api/products', methods=['GET'])
 def get_products():
     if not os.path.exists(DATA_FILE):
@@ -136,30 +163,7 @@ def update_product(product_id):
         json.dump(products, f)
     return jsonify(updated)
 
-# ✅ 상품 이미지 업로드
-@app.route('/api/upload', methods=['POST'])
-def upload_image():
-    if 'file' not in request.files:
-        return jsonify({'error': 'No file part'}), 400
-    file = request.files['file']
-    if file.filename == '':
-        return jsonify({'error': 'No selected file'}), 400
-    if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        save_path = os.path.join(UPLOAD_FOLDER, filename)
-
-        base, ext = os.path.splitext(filename)
-        counter = 1
-        while os.path.exists(save_path):
-            filename = f"{base}_{counter}{ext}"
-            save_path = os.path.join(UPLOAD_FOLDER, filename)
-            counter += 1
-
-        file.save(save_path)
-        return jsonify({'imageUrl': f'/static/images/{filename}'})
-    return jsonify({'error': 'Invalid file type'}), 400
-
-# ✅ 프로모 카드
+# ✅ 프로모 카드 json 저장/불러오기
 @app.route('/api/promo-cards', methods=['GET'])
 def get_promo_cards():
     if not os.path.exists(PROMO_CARDS_FILE):
@@ -174,17 +178,7 @@ def save_promo_cards():
         json.dump(cards, f)
     return jsonify({'message': 'Promo cards saved successfully.'}), 200
 
-# ✅ 업로드 이미지 제공
-@app.route('/static/images/<filename>')
-def serve_uploaded_images(filename):
-    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
-
-# ✅ 배너 이미지 제공
-@app.route('/static/banners/<filename>')
-def serve_banner_image(filename):
-    return send_from_directory(app.config['BANNER_FOLDER'], filename)
-
-# ✅ React SPA 라우팅 처리 (마지막에 위치해야 함)
+# ✅ React SPA 라우팅
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 def serve_react_app(path):
@@ -194,5 +188,5 @@ def serve_react_app(path):
         return send_from_directory(app.static_folder, 'index.html')
 
 # ✅ 실행
-# if __name__ == '__main__':
-#     app.run(debug=True)
+if __name__ == '__main__':
+    app.run(debug=True)

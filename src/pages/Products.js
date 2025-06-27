@@ -80,11 +80,12 @@ function Products() {
             <div className="product-card" key={product.id}>
               <Link to={`/products/${product.id}`} className="card-image">
                 {product.image ? (
-                  <img src={`${BASE_URL}${product.image}`} alt={product.name} />
+                  <img src={product.image} alt={product.name} />
                 ) : (
                   <div className="placeholder">No Image</div>
                 )}
               </Link>
+
               <div className="card-info">
                 <h4>{product.name}</h4>
                 <p>{product.description}</p>

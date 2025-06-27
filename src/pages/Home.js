@@ -3,7 +3,7 @@ import '../styles/Home.css';
 import EventBannerSlider from '../components/EventBannerSlider';
 import PosterUploader from '../components/PosterUploader';
 import { AuthContext } from '../context/AuthContext';
-import BASE_URL from '../config'; // ✅ config에서 import
+import BASE_URL from '../config';
 
 const initialPromoCards = [
   { id: 1, title: 'Popular', description: 'Fan favorites of the week!', image: '' },
@@ -19,7 +19,6 @@ const Home = () => {
   const isAdmin = user?.name === 'admin';
   const [promoCards, setPromoCards] = useState([]);
 
-  // ✅ 서버에 저장하는 함수
   const saveCardsToServer = (cards) => {
     fetch(`${BASE_URL}/api/promo-cards`, {
       method: 'PUT',
@@ -28,7 +27,6 @@ const Home = () => {
     }).catch(err => console.error('Failed to save promo cards:', err));
   };
 
-  // ✅ 서버에서 카드 불러오기 + 초기화 로직
   useEffect(() => {
     fetch(`${BASE_URL}/api/promo-cards`)
       .then(res => res.json())
@@ -47,7 +45,6 @@ const Home = () => {
       });
   }, []);
 
-  // ✅ 텍스트 수정
   const handleInputChange = (id, field, value) => {
     const updated = promoCards.map(card =>
       card.id === id ? { ...card, [field]: value } : card
@@ -56,7 +53,6 @@ const Home = () => {
     saveCardsToServer(updated);
   };
 
-  // ✅ 이미지 업로드
   const handleImageUpload = (id, file) => {
     const formData = new FormData();
     formData.append('file', file);
@@ -86,7 +82,10 @@ const Home = () => {
           <div className="product-card" key={card.id}>
             <div className="card-image">
               {card.image ? (
-                <img src={`${BASE_URL}${card.image}`} alt={card.title} />
+                <img
+                  src={card.image.startsWith('http') ? card.image : `${BASE_URL}${card.image}`}
+                  alt={card.title}
+                />
               ) : (
                 <div className="placeholder">No Image</div>
               )}

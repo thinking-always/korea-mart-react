@@ -108,47 +108,49 @@ const PosterUploader = () => {
         gap: '15px',
         marginTop: '10px'
       }}>
-        {banners.map((banner, idx) => (
-          <div key={idx} style={{
-            width: '160px',
-            border: '1px solid #ddd',
-            borderRadius: '8px',
-            padding: '10px',
-            textAlign: 'center',
-            backgroundColor: '#fafafa',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
-          }}>
-            <img
-              src={`${BASE_URL}${banner.url}`}
-              alt={`banner-${idx}`}
-              style={{
-                width: '100%',
-                height: 'auto',
-                borderRadius: '5px',
-                marginBottom: '6px'
-              }}
-            />
-            <p style={{
-              fontSize: '12px',
-              wordBreak: 'break-word',
-              margin: '6px 0'
-            }}>{banner.filename}</p>
-            <button
-              onClick={() => handleDelete(banner.filename)}
-              style={{
+        {banners
+          .filter(b => b.url && !b.url.includes('banner-')) // ✅ 로컬 banner- 이미지 제거
+          .map((banner, idx) => (
+            <div key={idx} style={{
+              width: '160px',
+              border: '1px solid #ddd',
+              borderRadius: '8px',
+              padding: '10px',
+              textAlign: 'center',
+              backgroundColor: '#fafafa',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
+            }}>
+              <img
+                src={banner.url}
+                alt={`banner-${idx}`}
+                style={{
+                  width: '100%',
+                  height: 'auto',
+                  borderRadius: '5px',
+                  marginBottom: '6px'
+                }}
+              />
+              <p style={{
                 fontSize: '12px',
-                padding: '3px 8px',
-                border: 'none',
-                borderRadius: '4px',
-                backgroundColor: '#ff3d00',
-                color: 'white',
-                cursor: 'pointer'
-              }}
-            >
-              삭제
-            </button>
-          </div>
-        ))}
+                wordBreak: 'break-word',
+                margin: '6px 0'
+              }}>{banner.filename}</p>
+              <button
+                onClick={() => handleDelete(banner.filename)}
+                style={{
+                  fontSize: '12px',
+                  padding: '3px 8px',
+                  border: 'none',
+                  borderRadius: '4px',
+                  backgroundColor: '#ff3d00',
+                  color: 'white',
+                  cursor: 'pointer'
+                }}
+              >
+                삭제
+              </button>
+            </div>
+          ))}
       </div>
     </div>
   );
