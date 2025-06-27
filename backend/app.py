@@ -19,7 +19,9 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 app = Flask(__name__, static_folder=BUILD_FOLDER, static_url_path='')
 #CORS(app, origins=["https://korea-mart-react-3.onrender.com"])
-CORS(app, origins=["http://localhost:3000", "http://localhost:5000","https://korea-mart-react-3.onrender.com"])
+# 🔥 이걸로 수정
+CORS(app, supports_credentials=True, origins="*")
+
 
 
 def allowed_file(filename):
