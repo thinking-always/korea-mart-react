@@ -3,3 +3,4 @@ gunicorn
 Pillow
 flask-cors
 cloudinary
+python-dotenv

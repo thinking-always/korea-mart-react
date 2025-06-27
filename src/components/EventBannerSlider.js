@@ -8,7 +8,7 @@ function EventBannerSlider() {
   const [index, setIndex] = useState(0);
   const intervalRef = useRef(null);
 
-  // ✅ Cloudinary URL만 필터링해서 받아오기
+  // ✅ Cloudinary 이미지만 불러오기
   useEffect(() => {
     axios
       .get(`${BASE_URL}/api/banners`)
@@ -17,6 +17,7 @@ function EventBannerSlider() {
           item.url && item.url.startsWith('https://res.cloudinary.com')
         );
         setImages(filtered);
+        setIndex(0); // 🔧 이미지 갱신되면 index도 초기화
       })
       .catch((err) => console.error('포스터 불러오기 실패', err));
   }, []);
@@ -24,21 +25,35 @@ function EventBannerSlider() {
   // ✅ 자동 슬라이드 타이머
   useEffect(() => {
     if (images.length > 1) {
-      intervalRef.current = setInterval(() => {
-        setIndex((prev) => (prev + 1) % images.length);
-      }, 5000);
+      startAutoSlide();
     }
-    return () => clearInterval(intervalRef.current);
+    return stopAutoSlide;
   }, [images]);
 
+  const startAutoSlide = () => {
+    stopAutoSlide();
+    intervalRef.current = setInterval(() => {
+      setIndex((prev) => (prev + 1) % images.length);
+    }, 5000);
+  };
+
+  const stopAutoSlide = () => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+  };
+
   const handlePrev = () => {
-    clearInterval(intervalRef.current);
+    stopAutoSlide();
     setIndex((prev) => (prev - 1 + images.length) % images.length);
+    startAutoSlide(); // 수동 조작 후 다시 자동 재시작
   };
 
   const handleNext = () => {
-    clearInterval(intervalRef.current);
+    stopAutoSlide();
     setIndex((prev) => (prev + 1) % images.length);
+    startAutoSlide();
   };
 
   if (images.length === 0) {
@@ -58,7 +73,7 @@ function EventBannerSlider() {
           }}
         >
           {images.map((item, i) => (
-            <div className="slider-item" key={i}>
+            <div className="slider-item" key={item.filename || i}>
               <img
                 src={item.url}
                 alt={item.filename || `poster-${i}`}

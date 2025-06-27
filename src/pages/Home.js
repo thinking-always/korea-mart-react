@@ -57,7 +57,7 @@ const Home = () => {
     const formData = new FormData();
     formData.append('file', file);
 
-    fetch(`${BASE_URL}/api/upload`, {
+    fetch(`${BASE_URL}/api/upload-banner`, {
       method: 'POST',
       body: formData
     })
@@ -83,8 +83,8 @@ const Home = () => {
             <div className="card-image">
               {card.image ? (
                 <img
-                  src={card.image.startsWith('http') ? card.image : `${BASE_URL}${card.image}`}
-                  alt={card.title}
+                  src={card.image?.startsWith('http') ? card.image : `${BASE_URL}${card.image}`}
+                  alt={card.title || 'Promo Image'}
                 />
               ) : (
                 <div className="placeholder">No Image</div>
@@ -114,8 +114,8 @@ const Home = () => {
                 </>
               ) : (
                 <>
-                  <h4>{card.title}</h4>
-                  <p>{card.description}</p>
+                  <h4>{card.title || 'Untitled'}</h4>
+                  <p>{card.description || 'No description available.'}</p>
                 </>
               )}
             </div>

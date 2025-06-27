@@ -2,7 +2,7 @@ from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 import os, json, cloudinary, cloudinary.uploader
 from werkzeug.utils import secure_filename
-from dotenv import load_dotenv  # ✅ 추가
+from dotenv import load_dotenv
 
 # ✅ .env 파일 로드
 load_dotenv()
@@ -14,22 +14,25 @@ cloudinary.config(
     api_secret=os.getenv('CLOUDINARY_API_SECRET')
 )
 
-# ✅ 기본 설정
+# ✅ 기본 경로 설정
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 BUILD_FOLDER = os.path.join(BASE_DIR, 'build')
 DATA_FILE = os.path.join(BASE_DIR, 'products.json')
 PROMO_CARDS_FILE = os.path.join(BASE_DIR, 'promo_cards.json')
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
+# ✅ Flask 앱 생성
 app = Flask(__name__, static_folder=BUILD_FOLDER, static_url_path='')
-app.secret_key = os.getenv('FLASK_SECRET_KEY')  # ✅ 환경변수로 관리
+app.secret_key = os.getenv('FLASK_SECRET_KEY')
 
-#CORS(app, origins=["https://korea-mart-react-3.onrender.com"])
+# ✅ CORS 설정 (배포용)
 CORS(app,
+     origins=["https://korea-mart-react-3.onrender.com"],
      supports_credentials=True,
-     origins=["https://korea-mart-react-3.onrender.com"])
+     allow_headers=["Content-Type", "Authorization"],
+     methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])
 
-
+# ✅ 파일 확장자 허용 검사
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
@@ -90,7 +93,6 @@ def get_banners():
 def delete_banner():
     data = request.get_json()
     filename = data.get('filename')
-
     if not filename:
         return jsonify({'error': 'No filename provided'}), 400
 
@@ -104,7 +106,6 @@ def delete_banner():
 
     with open(PROMO_CARDS_FILE, 'r') as f:
         cards = json.load(f)
-
     cards = [card for card in cards if card.get('filename') != filename]
 
     with open(PROMO_CARDS_FILE, 'w') as f:
@@ -112,7 +113,7 @@ def delete_banner():
 
     return jsonify({'message': 'Deleted'}), 200
 
-# ✅ 상품 CRUD
+# ✅ 상품 조회
 @app.route('/api/products', methods=['GET'])
 def get_products():
     if not os.path.exists(DATA_FILE):
@@ -120,6 +121,7 @@ def get_products():
     with open(DATA_FILE, 'r') as f:
         return jsonify(json.load(f))
 
+# ✅ 상품 등록
 @app.route('/api/products', methods=['POST'])
 def add_product():
     new_product = request.get_json()
@@ -134,6 +136,7 @@ def add_product():
         json.dump(products, f)
     return jsonify(new_product), 201
 
+# ✅ 상품 삭제
 @app.route('/api/products/<int:product_id>', methods=['DELETE'])
 def delete_product(product_id):
     if not os.path.exists(DATA_FILE):
@@ -145,6 +148,7 @@ def delete_product(product_id):
         json.dump(products, f)
     return '', 204
 
+# ✅ 상품 수정
 @app.route('/api/products/<int:product_id>', methods=['PUT'])
 def update_product(product_id):
     updated_data = request.get_json()
@@ -164,7 +168,7 @@ def update_product(product_id):
         json.dump(products, f)
     return jsonify(updated)
 
-# ✅ 프로모 카드 관리
+# ✅ 프로모 카드 조회
 @app.route('/api/promo-cards', methods=['GET'])
 def get_promo_cards():
     if not os.path.exists(PROMO_CARDS_FILE):
@@ -172,6 +176,7 @@ def get_promo_cards():
     with open(PROMO_CARDS_FILE, 'r') as f:
         return jsonify(json.load(f))
 
+# ✅ 프로모 카드 저장
 @app.route('/api/promo-cards', methods=['PUT'])
 def save_promo_cards():
     cards = request.get_json()
@@ -179,7 +184,7 @@ def save_promo_cards():
         json.dump(cards, f)
     return jsonify({'message': 'Promo cards saved successfully.'}), 200
 
-# ✅ React SPA 라우팅
+# ✅ React 정적 파일 처리
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 def serve_react_app(path):
@@ -188,6 +193,6 @@ def serve_react_app(path):
     else:
         return send_from_directory(app.static_folder, 'index.html')
 
-# ✅ 실행
-if __name__ == '__main__':
-    app.run(debug=True)
+# ✅ 앱 실행
+# if __name__ == '__main__':
+#     app.run(debug=True)
