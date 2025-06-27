@@ -2,32 +2,38 @@ from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 import os, json, cloudinary, cloudinary.uploader
 from werkzeug.utils import secure_filename
+from dotenv import load_dotenv  # ✅ 추가
+
+# ✅ .env 파일 로드
+load_dotenv()
 
 # ✅ Cloudinary 설정
 cloudinary.config(
-    cloud_name='dnhoeuj4t',
-    api_key='118544432646378',
-    api_secret='N-g_TvykAHzLHgJM2yfNkbwHyjY'
+    cloud_name=os.getenv('CLOUDINARY_CLOUD_NAME'),
+    api_key=os.getenv('CLOUDINARY_API_KEY'),
+    api_secret=os.getenv('CLOUDINARY_API_SECRET')
 )
 
 # ✅ 기본 설정
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-BUILD_FOLDER = os.path.join(BASE_DIR, 'build')  # React build 폴더
+BUILD_FOLDER = os.path.join(BASE_DIR, 'build')
 DATA_FILE = os.path.join(BASE_DIR, 'products.json')
 PROMO_CARDS_FILE = os.path.join(BASE_DIR, 'promo_cards.json')
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 app = Flask(__name__, static_folder=BUILD_FOLDER, static_url_path='')
-#CORS(app, origins=["https://korea-mart-react-3.onrender.com"])
-# 🔥 이걸로 수정
-CORS(app, supports_credentials=True, origins="*")
+app.secret_key = os.getenv('FLASK_SECRET_KEY')  # ✅ 환경변수로 관리
 
+#CORS(app, origins=["https://korea-mart-react-3.onrender.com"])
+CORS(app,
+     supports_credentials=True,
+     origins=["https://korea-mart-react-3.onrender.com"])
 
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-# ✅ 상품 이미지 업로드 → Cloudinary
+# ✅ 상품 이미지 업로드
 @app.route('/api/upload', methods=['POST'])
 def upload_image():
     if 'file' not in request.files:
@@ -38,7 +44,7 @@ def upload_image():
     result = cloudinary.uploader.upload(file)
     return jsonify({'imageUrl': result['secure_url']})
 
-# ✅ 배너 이미지 업로드 → Cloudinary
+# ✅ 배너 이미지 업로드
 @app.route('/api/upload-banner', methods=['POST'])
 def upload_banner():
     if 'file' not in request.files:
@@ -56,7 +62,6 @@ def upload_banner():
             'description': ''
         }
 
-        # 기존 목록 불러오기
         if os.path.exists(PROMO_CARDS_FILE):
             with open(PROMO_CARDS_FILE, 'r') as f:
                 banners = json.load(f)
@@ -65,7 +70,6 @@ def upload_banner():
 
         banners.append(new_banner)
 
-        # 덮어쓰기
         with open(PROMO_CARDS_FILE, 'w') as f:
             json.dump(banners, f)
 
@@ -73,9 +77,7 @@ def upload_banner():
     except Exception as e:
         return jsonify({'error': f'Cloudinary upload failed: {str(e)}'}), 500
 
-
-
-# ✅ 배너 리스트 → promo_cards.json에서 관리
+# ✅ 배너 리스트 조회
 @app.route('/api/banners', methods=['GET'])
 def get_banners():
     if not os.path.exists(PROMO_CARDS_FILE):
@@ -83,22 +85,20 @@ def get_banners():
     with open(PROMO_CARDS_FILE, 'r') as f:
         return jsonify(json.load(f))
 
-# ✅ 배너 삭제 (json 목록에서만 삭제)
+# ✅ 배너 삭제
 @app.route('/api/delete-banner', methods=['POST'])
 def delete_banner():
     data = request.get_json()
-    filename = data.get('filename')  # ex) "banners/abc123"
+    filename = data.get('filename')
 
     if not filename:
         return jsonify({'error': 'No filename provided'}), 400
 
     try:
-        # 🔥 Cloudinary에서 이미지 삭제
         cloudinary.uploader.destroy(filename)
     except Exception as e:
         return jsonify({'error': f'Cloudinary deletion failed: {str(e)}'}), 500
 
-    # JSON에서 항목 제거
     if not os.path.exists(PROMO_CARDS_FILE):
         return jsonify({'error': 'No promo cards found'}), 404
 
@@ -111,7 +111,6 @@ def delete_banner():
         json.dump(cards, f)
 
     return jsonify({'message': 'Deleted'}), 200
-
 
 # ✅ 상품 CRUD
 @app.route('/api/products', methods=['GET'])
@@ -165,7 +164,7 @@ def update_product(product_id):
         json.dump(products, f)
     return jsonify(updated)
 
-# ✅ 프로모 카드 json 저장/불러오기
+# ✅ 프로모 카드 관리
 @app.route('/api/promo-cards', methods=['GET'])
 def get_promo_cards():
     if not os.path.exists(PROMO_CARDS_FILE):
