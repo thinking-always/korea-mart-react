@@ -12,7 +12,8 @@ const PosterUploader = () => {
   }, []);
 
   const fetchBanners = () => {
-    axios.get(`${BASE_URL}/api/banners`)
+    axios
+      .get(`${BASE_URL}/api/banners`, { withCredentials: true })
       .then(res => setBanners(res.data))
       .catch(err => console.error('🔴 배너 불러오기 실패:', err));
   };
@@ -71,7 +72,8 @@ const PosterUploader = () => {
 
     try {
       await axios.post(`${BASE_URL}/api/upload-banner`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
+        headers: { 'Content-Type': 'multipart/form-data' },
+        withCredentials: true,
       });
       alert('✅ 포스터 업로드 성공');
       setFile(null);
@@ -88,7 +90,7 @@ const PosterUploader = () => {
     if (!confirmDelete) return;
 
     try {
-      await axios.post(`${BASE_URL}/api/delete-banner`, { filename });
+      await axios.post(`${BASE_URL}/api/delete-banner`, { filename }, { withCredentials: true });
       alert('🗑 삭제 완료');
       fetchBanners();
     } catch (err) {

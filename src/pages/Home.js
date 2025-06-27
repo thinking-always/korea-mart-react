@@ -59,6 +59,7 @@ const Home = () => {
 
     fetch(`${BASE_URL}/api/upload-banner`, {
       method: 'POST',
+      credentials: 'include',
       body: formData
     })
       .then(res => res.json())
