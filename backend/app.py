@@ -11,7 +11,7 @@ BANNER_FOLDER = os.path.join(BASE_DIR, 'static', 'banners')
 BUILD_FOLDER = os.path.join(BASE_DIR, 'build')  # React build 폴더
 
 app = Flask(__name__, static_folder=BUILD_FOLDER, static_url_path='')
-CORS(app)
+CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 DATA_FILE = os.path.join(BASE_DIR, 'products.json')
 PROMO_CARDS_FILE = os.path.join(BASE_DIR, 'promo_cards.json')
