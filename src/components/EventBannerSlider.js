@@ -10,17 +10,17 @@ function EventBannerSlider() {
 
   // ✅ Cloudinary 이미지만 불러오기
   useEffect(() => {
-    axios
-      .get(`${BASE_URL}/api/banners`)
-      .then((res) => {
-        const filtered = res.data.filter(item =>
-          item.url && item.url.startsWith('https://res.cloudinary.com')
-        );
-        setImages(filtered);
-        setIndex(0); // 🔧 이미지 갱신되면 index도 초기화
-      })
-      .catch((err) => console.error('포스터 불러오기 실패', err));
-  }, []);
+  fetch(`${BASE_URL}/api/banners`)
+    .then((res) => res.json())
+    .then((data) => {
+      const filtered = data.filter(item =>
+        item.url && item.url.startsWith('https://res.cloudinary.com')
+      );
+      setImages(filtered);
+    })
+    .catch((err) => console.error('포스터 불러오기 실패', err));
+}, []);
+
 
   // ✅ 자동 슬라이드 타이머
   useEffect(() => {

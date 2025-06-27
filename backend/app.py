@@ -86,7 +86,12 @@ def get_banners():
     if not os.path.exists(PROMO_CARDS_FILE):
         return jsonify([])
     with open(PROMO_CARDS_FILE, 'r') as f:
-        return jsonify(json.load(f))
+        all_data = json.load(f)
+
+    # ✅ Cloudinary 배너만 필터링
+    cloudinary_banners = [item for item in all_data if item.get('url', '').startswith('https://res.cloudinary.com')]
+    return jsonify(cloudinary_banners)
+
 
 # ✅ 배너 삭제
 @app.route('/api/delete-banner', methods=['POST'])
@@ -194,5 +199,5 @@ def serve_react_app(path):
         return send_from_directory(app.static_folder, 'index.html')
 
 # ✅ 앱 실행
-# if __name__ == '__main__':
-#     app.run(debug=True)
+if __name__ == '__main__':
+     app.run(debug=True)
