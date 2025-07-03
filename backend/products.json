@@ -1,1 +1,188 @@
-[]
+[
+  {
+    "id": 1,
+    "name": "Spicy Ramen",
+    "price": "4.50",
+    "category": "noodles",
+    "description": "Hot Korean ramen.",
+    "image": ""
+  },
+  {
+    "id": 2,
+    "name": "Udon Noodles",
+    "price": "5.00",
+    "category": "noodles",
+    "description": "Thick udon noodles.",
+    "image": ""
+  },
+
+  {
+    "id": 3,
+    "name": "Green Tea",
+    "price": "2.50",
+    "category": "beverages",
+    "description": "Refreshing green tea.",
+    "image": ""
+  },
+  {
+    "id": 4,
+    "name": "Coffee Latte",
+    "price": "3.00",
+    "category": "beverages",
+    "description": "Sweet iced latte.",
+    "image": ""
+  },
+
+  {
+    "id": 5,
+    "name": "Kimchi Side",
+    "price": "1.50",
+    "category": "sides",
+    "description": "Spicy kimchi pack.",
+    "image": ""
+  },
+  {
+    "id": 6,
+    "name": "Pickled Radish",
+    "price": "1.20",
+    "category": "sides",
+    "description": "Crispy yellow radish.",
+    "image": ""
+  },
+
+  {
+    "id": 7,
+    "name": "Face Mask",
+    "price": "2.00",
+    "category": "cosmetics",
+    "description": "Moisturizing mask pack.",
+    "image": ""
+  },
+  {
+    "id": 8,
+    "name": "Hand Cream",
+    "price": "3.50",
+    "category": "cosmetics",
+    "description": "Soft hand cream.",
+    "image": ""
+  },
+
+  {
+    "id": 9,
+    "name": "Spicy Sauce",
+    "price": "1.80",
+    "category": "sauces",
+    "description": "Hot Korean sauce.",
+    "image": ""
+  },
+  {
+    "id": 10,
+    "name": "Soy Sauce",
+    "price": "1.50",
+    "category": "sauces",
+    "description": "Classic soy sauce.",
+    "image": ""
+  },
+
+  {
+    "id": 11,
+    "name": "Potato Chips",
+    "price": "2.20",
+    "category": "snacks",
+    "description": "Crispy potato snack.",
+    "image": ""
+  },
+  {
+    "id": 12,
+    "name": "Chocolate Bar",
+    "price": "1.00",
+    "category": "snacks",
+    "description": "Sweet chocolate bar.",
+    "image": ""
+  },
+
+  {
+    "id": 13,
+    "name": "Instant Curry",
+    "price": "4.50",
+    "category": "ready-meals",
+    "description": "Quick curry meal.",
+    "image": ""
+  },
+  {
+    "id": 14,
+    "name": "Microwave Rice",
+    "price": "1.80",
+    "category": "ready-meals",
+    "description": "Steamed instant rice.",
+    "image": ""
+  },
+
+  {
+    "id": 15,
+    "name": "Frozen Dumplings",
+    "price": "5.50",
+    "category": "frozen",
+    "description": "Pork dumplings.",
+    "image": ""
+  },
+  {
+    "id": 16,
+    "name": "Frozen Pizza",
+    "price": "6.00",
+    "category": "frozen",
+    "description": "Quick frozen pizza.",
+    "image": ""
+  },
+
+  {
+    "id": 17,
+    "name": "Fresh Lettuce",
+    "price": "2.00",
+    "category": "vegetables",
+    "description": "Crisp green lettuce.",
+    "image": ""
+  },
+  {
+    "id": 18,
+    "name": "Carrot Pack",
+    "price": "1.50",
+    "category": "vegetables",
+    "description": "Fresh carrots.",
+    "image": ""
+  },
+
+  {
+    "id": 19,
+    "name": "Detergent",
+    "price": "3.00",
+    "category": "cleaning",
+    "description": "Laundry detergent.",
+    "image": ""
+  },
+  {
+    "id": 20,
+    "name": "Dish Soap",
+    "price": "2.50",
+    "category": "cleaning",
+    "description": "Foamy dish soap.",
+    "image": ""
+  },
+
+  {
+    "id": 21,
+    "name": "White Rice",
+    "price": "7.00",
+    "category": "rice",
+    "description": "5kg white rice bag.",
+    "image": ""
+  },
+  {
+    "id": 22,
+    "name": "Brown Rice",
+    "price": "8.00",
+    "category": "rice",
+    "description": "Healthy brown rice.",
+    "image": ""
+  }
+]

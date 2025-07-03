@@ -1,124 +1,31 @@
 from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 import os, json, cloudinary, cloudinary.uploader
-from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
 
-# ✅ .env 파일 로드
 load_dotenv()
 
-# ✅ Cloudinary 설정
 cloudinary.config(
     cloud_name=os.getenv('CLOUDINARY_CLOUD_NAME'),
     api_key=os.getenv('CLOUDINARY_API_KEY'),
     api_secret=os.getenv('CLOUDINARY_API_SECRET')
 )
 
-# ✅ 기본 경로 설정
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 BUILD_FOLDER = os.path.join(BASE_DIR, 'build')
 DATA_FILE = os.path.join(BASE_DIR, 'products.json')
 PROMO_CARDS_FILE = os.path.join(BASE_DIR, 'promo_cards.json')
+BANNERS_FILE = os.path.join(BASE_DIR, 'banners.json')
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
-# ✅ Flask 앱 생성
 app = Flask(__name__, static_folder=BUILD_FOLDER, static_url_path='')
-app.secret_key = os.getenv('FLASK_SECRET_KEY')
+CORS(app, origins="*", supports_credentials=True)
 
-# ✅ CORS 설정 (배포용)
-CORS(app,
-     origins=["https://korea-mart-react-3.onrender.com"],
-     supports_credentials=True,
-     allow_headers=["Content-Type", "Authorization"],
-     methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])
-
-# ✅ 파일 확장자 허용 검사
+# ✅ 파일 확장자 검사
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-# ✅ 상품 이미지 업로드
-@app.route('/api/upload', methods=['POST'])
-def upload_image():
-    if 'file' not in request.files:
-        return jsonify({'error': 'No file part'}), 400
-    file = request.files['file']
-    if file.filename == '' or not allowed_file(file.filename):
-        return jsonify({'error': 'Invalid file'}), 400
-    result = cloudinary.uploader.upload(file)
-    return jsonify({'imageUrl': result['secure_url']})
-
-# ✅ 배너 이미지 업로드
-@app.route('/api/upload-banner', methods=['POST'])
-def upload_banner():
-    if 'file' not in request.files:
-        return jsonify({'error': 'No file part'}), 400
-    file = request.files['file']
-    if file.filename == '' or not allowed_file(file.filename):
-        return jsonify({'error': 'Invalid file'}), 400
-
-    try:
-        result = cloudinary.uploader.upload(file, folder='banners')
-        new_banner = {
-            'url': result['secure_url'],
-            'filename': result['public_id'],
-            'title': '',
-            'description': ''
-        }
-
-        if os.path.exists(PROMO_CARDS_FILE):
-            with open(PROMO_CARDS_FILE, 'r') as f:
-                banners = json.load(f)
-        else:
-            banners = []
-
-        banners.append(new_banner)
-
-        with open(PROMO_CARDS_FILE, 'w') as f:
-            json.dump(banners, f)
-
-        return jsonify(new_banner), 200
-    except Exception as e:
-        return jsonify({'error': f'Cloudinary upload failed: {str(e)}'}), 500
-
-# ✅ 배너 리스트 조회
-@app.route('/api/banners', methods=['GET'])
-def get_banners():
-    if not os.path.exists(PROMO_CARDS_FILE):
-        return jsonify([])
-    with open(PROMO_CARDS_FILE, 'r') as f:
-        all_data = json.load(f)
-
-    # ✅ Cloudinary 배너만 필터링
-    cloudinary_banners = [item for item in all_data if item.get('url', '').startswith('https://res.cloudinary.com')]
-    return jsonify(cloudinary_banners)
-
-
-# ✅ 배너 삭제
-@app.route('/api/delete-banner', methods=['POST'])
-def delete_banner():
-    data = request.get_json()
-    filename = data.get('filename')
-    if not filename:
-        return jsonify({'error': 'No filename provided'}), 400
-
-    try:
-        cloudinary.uploader.destroy(filename)
-    except Exception as e:
-        return jsonify({'error': f'Cloudinary deletion failed: {str(e)}'}), 500
-
-    if not os.path.exists(PROMO_CARDS_FILE):
-        return jsonify({'error': 'No promo cards found'}), 404
-
-    with open(PROMO_CARDS_FILE, 'r') as f:
-        cards = json.load(f)
-    cards = [card for card in cards if card.get('filename') != filename]
-
-    with open(PROMO_CARDS_FILE, 'w') as f:
-        json.dump(cards, f)
-
-    return jsonify({'message': 'Deleted'}), 200
-
-# ✅ 상품 조회
+# ✅ 상품 CRUD
 @app.route('/api/products', methods=['GET'])
 def get_products():
     if not os.path.exists(DATA_FILE):
@@ -126,7 +33,6 @@ def get_products():
     with open(DATA_FILE, 'r') as f:
         return jsonify(json.load(f))
 
-# ✅ 상품 등록
 @app.route('/api/products', methods=['POST'])
 def add_product():
     new_product = request.get_json()
@@ -141,7 +47,6 @@ def add_product():
         json.dump(products, f)
     return jsonify(new_product), 201
 
-# ✅ 상품 삭제
 @app.route('/api/products/<int:product_id>', methods=['DELETE'])
 def delete_product(product_id):
     if not os.path.exists(DATA_FILE):
@@ -153,7 +58,6 @@ def delete_product(product_id):
         json.dump(products, f)
     return '', 204
 
-# ✅ 상품 수정
 @app.route('/api/products/<int:product_id>', methods=['PUT'])
 def update_product(product_id):
     updated_data = request.get_json()
@@ -173,7 +77,7 @@ def update_product(product_id):
         json.dump(products, f)
     return jsonify(updated)
 
-# ✅ 프로모 카드 조회
+# ✅ 메인 배너 관리
 @app.route('/api/promo-cards', methods=['GET'])
 def get_promo_cards():
     if not os.path.exists(PROMO_CARDS_FILE):
@@ -181,23 +85,82 @@ def get_promo_cards():
     with open(PROMO_CARDS_FILE, 'r') as f:
         return jsonify(json.load(f))
 
-# ✅ 프로모 카드 저장
 @app.route('/api/promo-cards', methods=['PUT'])
 def save_promo_cards():
     cards = request.get_json()
     with open(PROMO_CARDS_FILE, 'w') as f:
         json.dump(cards, f)
-    return jsonify({'message': 'Promo cards saved successfully.'}), 200
+    return jsonify({'message': 'Promo cards saved.'}), 200
 
-# ✅ React 정적 파일 처리
+# ✅ Cloudinary 상품 이미지 업로드
+@app.route('/api/upload', methods=['POST'])
+def upload_image():
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file part'}), 400
+    file = request.files['file']
+    result = cloudinary.uploader.upload(file)
+    return jsonify({'imageUrl': result['secure_url']})
+
+# ✅ 포스터 업로드
+@app.route('/api/upload-banner', methods=['POST'])
+def upload_banner():
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file part'}), 400
+    file = request.files['file']
+    if file.filename == '' or not allowed_file(file.filename):
+        return jsonify({'error': 'Invalid file'}), 400
+    result = cloudinary.uploader.upload(file, folder='banners')
+    new_banner = {
+        'image': result['secure_url'],
+        'filename': result['public_id']
+    }
+    if os.path.exists(BANNERS_FILE):
+        with open(BANNERS_FILE, 'r') as f:
+            banners = json.load(f)
+    else:
+        banners = []
+    banners.append(new_banner)
+    with open(BANNERS_FILE, 'w') as f:
+        json.dump(banners, f)
+    return jsonify(new_banner), 200
+
+# ✅ 포스터 조회 — 중복 절대 없음!!
+@app.route('/api/banners', methods=['GET'])
+def get_banners():
+    if not os.path.exists(BANNERS_FILE):
+        return jsonify([])
+    try:
+        with open(BANNERS_FILE, 'r') as f:
+            data = json.load(f)
+        return jsonify(data)
+    except Exception:
+        return jsonify([])  # 실패해도 빈 배열
+
+# ✅ 포스터 삭제
+@app.route('/api/delete-banner', methods=['POST'])
+def delete_banner():
+    data = request.get_json()
+    filename = data.get('filename')
+    if not filename:
+        return jsonify({'error': 'No filename provided'}), 400
+    cloudinary.uploader.destroy(filename)
+    if not os.path.exists(BANNERS_FILE):
+        return jsonify([])
+    with open(BANNERS_FILE, 'r') as f:
+        banners = json.load(f)
+    banners = [b for b in banners if b.get('filename') != filename]
+    with open(BANNERS_FILE, 'w') as f:
+        json.dump(banners, f)
+    return jsonify({'message': 'Deleted'}), 200
+
+# ✅ React 빌드 서빙
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
-def serve_react_app(path):
+def serve_react(path):
     if path != "" and os.path.exists(os.path.join(app.static_folder, path)):
         return send_from_directory(app.static_folder, path)
     else:
         return send_from_directory(app.static_folder, 'index.html')
 
-# ✅ 앱 실행
 if __name__ == '__main__':
-     app.run(debug=True)
+    app.run(debug=True)

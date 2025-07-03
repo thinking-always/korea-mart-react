@@ -40,7 +40,11 @@ const AdminPage = () => {
     try {
       const res = await axios.post(`${BASE_URL}/api/products`, newProduct);
       setProducts([...products, res.data]);
-      setName(''); setPrice(''); setImage(''); setCategory(''); setDescription('');
+      setName('');
+      setPrice('');
+      setImage('');
+      setCategory('');
+      setDescription('');
     } catch (err) {
       console.error(err);
     }
@@ -75,7 +79,7 @@ const AdminPage = () => {
     setEditForm({
       name: product.name,
       price: product.price,
-      image: product.image,
+      image: product.image || '',
       category: product.category,
       description: product.description || '',
       filename: product.image ? product.image.split('/').pop() : ''
@@ -157,7 +161,9 @@ const AdminPage = () => {
         <div className="product-list">
           {filteredProducts.map(product => (
             <div className="product-row" key={product.id}>
-              <img src={product.image} alt={product.name} className="row-image" />
+              {product.image && (
+                <img src={product.image} alt={product.name} className="row-image" />
+              )}
               <div className="row-info">
                 <strong>{product.name}</strong> | {product.price} | [{product.category}]
               </div>
@@ -190,9 +196,11 @@ const AdminPage = () => {
         <div className="popup-overlay">
           <div className="edit-popup-card">
             <h3>상품 수정</h3>
-            <div className="edit-preview-image">
-              <img src={editForm.image} alt={editForm.name} />
-            </div>
+            {editForm.image && (
+              <div className="edit-preview-image">
+                <img src={editForm.image} alt={editForm.name} />
+              </div>
+            )}
             <p>현재 파일: {editForm.filename}</p>
             <input type="file" onChange={handleEditImageUpload} />
             <input type="text" placeholder="상품명" value={editForm.name} onChange={e => handleEditChange('name', e.target.value)} />

@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import '../styles/EventBanner.css';
-import axios from 'axios';
 import BASE_URL from '../config';
 
 function EventBannerSlider() {
@@ -8,21 +7,27 @@ function EventBannerSlider() {
   const [index, setIndex] = useState(0);
   const intervalRef = useRef(null);
 
-  // ✅ Cloudinary 이미지만 불러오기
   useEffect(() => {
-  fetch(`${BASE_URL}/api/banners`)
-    .then((res) => res.json())
-    .then((data) => {
-      const filtered = data.filter(item =>
-        item.url && item.url.startsWith('https://res.cloudinary.com')
-      );
-      setImages(filtered);
-    })
-    .catch((err) => console.error('포스터 불러오기 실패', err));
-}, []);
+    fetch(`${BASE_URL}/api/banners`)
+      .then(res => res.json())
+      .then(data => {
+        const filtered = data.filter(item =>
+          item.image && item.image.startsWith('https://')
+        );
+        if (filtered.length === 0) {
+          setImages([
+            {
+              image: 'https://your-default-banner-url.com/default.jpg',
+              filename: 'default'
+            }
+          ]);
+        } else {
+          setImages(filtered);
+        }
+      })
+      .catch(err => console.error('❌ Banner load failed:', err));
+  }, []);
 
-
-  // ✅ 자동 슬라이드 타이머
   useEffect(() => {
     if (images.length > 1) {
       startAutoSlide();
@@ -33,7 +38,7 @@ function EventBannerSlider() {
   const startAutoSlide = () => {
     stopAutoSlide();
     intervalRef.current = setInterval(() => {
-      setIndex((prev) => (prev + 1) % images.length);
+      setIndex(prev => (prev + 1) % images.length);
     }, 5000);
   };
 
@@ -46,13 +51,13 @@ function EventBannerSlider() {
 
   const handlePrev = () => {
     stopAutoSlide();
-    setIndex((prev) => (prev - 1 + images.length) % images.length);
-    startAutoSlide(); // 수동 조작 후 다시 자동 재시작
+    setIndex(prev => (prev - 1 + images.length) % images.length);
+    startAutoSlide();
   };
 
   const handleNext = () => {
     stopAutoSlide();
-    setIndex((prev) => (prev + 1) % images.length);
+    setIndex(prev => (prev + 1) % images.length);
     startAutoSlide();
   };
 
@@ -75,8 +80,8 @@ function EventBannerSlider() {
           {images.map((item, i) => (
             <div className="slider-item" key={item.filename || i}>
               <img
-                src={item.url}
-                alt={item.filename || `poster-${i}`}
+                src={item.image}
+                alt={`poster-${item.filename || i}`}
                 className="poster-image"
               />
             </div>
