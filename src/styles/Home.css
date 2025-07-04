@@ -126,3 +126,89 @@ button:hover {
     padding: 0 20px;
   }
 }
+
+/* 📌 제품 그리드 영역 */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 30px;
+  max-width: 1200px;
+  margin: 0 auto 60px;
+  padding: 0 40px;
+}
+
+.product-card {
+  background: #fff;
+  border-radius: 10px;
+  border: 1px solid #eee;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.product-card input[type="text"],
+.product-card textarea {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  margin: 8px 0;
+  font-size: 0.95rem;
+  color: #111;
+  transition: border 0.2s;
+}
+
+.product-card input[type="text"]:focus,
+.product-card textarea:focus {
+  border: 1px solid #b50014;
+  outline: none;
+}
+
+.product-card input[type="file"] {
+  margin: 8px 0;
+}
+
+.product-card img {
+  width: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.product-card .placeholder {
+  width: 100%;
+  height: 200px;
+  background: #f5f5f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #777;
+}
+
+.product-card h4 {
+  margin: 16px 0 8px;
+  padding: 0 16px;
+  font-size: 1.3rem;
+  color: #111;
+}
+
+.product-card p {
+  margin: 0 0 16px;
+  padding: 0 16px;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: #222;
+}
+
+/* 반응형 추가 */
+@media (max-width: 768px) {
+  .product-grid {
+    padding: 0 20px;
+    gap: 20px;
+  }
+}
