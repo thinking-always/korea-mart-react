@@ -4,7 +4,6 @@ import axios from 'axios';
 import BASE_URL from '../config';
 
 const AdminPage = () => {
-  // ✅ 상품 관련 상태
   const [products, setProducts] = useState([]);
   const [name, setName] = useState('');
   const [price, setPrice] = useState('');
@@ -27,29 +26,17 @@ const AdminPage = () => {
 
   const [previewImage, setPreviewImage] = useState(null);
 
-  // ✅ 배너 관련 상태
-  const [promoCards, setPromoCards] = useState([]);
-  const [newPromoTitle, setNewPromoTitle] = useState('');
-  const [newPromoDesc, setNewPromoDesc] = useState('');
-  const [newPromoImage, setNewPromoImage] = useState('');
-
   const categories = [
     'all', 'noodles', 'beverages', 'sides', 'cosmetics', 'sauces', 'snacks',
     'ready-meals', 'frozen', 'vegetables', 'cleaning', 'rice', 'daily'
   ];
 
-  // ✅ 데이터 불러오기
   useEffect(() => {
     axios.get(`${BASE_URL}/api/products`)
       .then(res => setProducts(res.data))
       .catch(err => console.error(err));
-
-    axios.get(`${BASE_URL}/api/promo-cards`)
-      .then(res => setPromoCards(res.data))
-      .catch(err => console.error(err));
   }, []);
 
-  // ✅ 상품 추가
   const handleAddProduct = async (e) => {
     e.preventDefault();
     if (!name.trim() || !price.trim() || !category.trim()) {
@@ -66,7 +53,6 @@ const AdminPage = () => {
     }
   };
 
-  // ✅ 상품 삭제
   const handleDelete = async (id) => {
     try {
       await axios.delete(`${BASE_URL}/api/products/${id}`);
@@ -76,7 +62,6 @@ const AdminPage = () => {
     }
   };
 
-  // ✅ 이미지 업로드
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     const formData = new FormData();
@@ -92,7 +77,6 @@ const AdminPage = () => {
     }
   };
 
-  // ✅ 수정 팝업 열기
   const openEditPopup = (product) => {
     setEditingProduct(product);
     setEditForm({
@@ -134,48 +118,6 @@ const AdminPage = () => {
     }
   };
 
-  // ✅ 배너 이미지 업로드
-  const handlePromoImageUpload = async (e) => {
-    const file = e.target.files[0];
-    const formData = new FormData();
-    formData.append('file', file);
-    try {
-      const res = await axios.post(`${BASE_URL}/api/upload-banner`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
-      setNewPromoImage(res.data.image);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  // ✅ 배너 추가
-  const handleAddPromoCard = () => {
-    if (!newPromoTitle.trim()) return alert('제목 필수');
-    const updated = [...promoCards, {
-      title: newPromoTitle,
-      description: newPromoDesc,
-      image: newPromoImage
-    }];
-    setPromoCards(updated);
-    setNewPromoTitle('');
-    setNewPromoDesc('');
-    setNewPromoImage('');
-  };
-
-  // ✅ 배너 저장
-  const handleSavePromoCards = () => {
-    axios.put(`${BASE_URL}/api/promo-cards`, promoCards)
-      .then(() => alert('저장 완료'))
-      .catch(err => console.error(err));
-  };
-
-  // ✅ 배너 삭제
-  const handleDeletePromoCard = (index) => {
-    const updated = promoCards.filter((_, i) => i !== index);
-    setPromoCards(updated);
-  };
-
   const filteredProducts = products.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(search.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || product.category === selectedCategory;
@@ -184,7 +126,6 @@ const AdminPage = () => {
 
   return (
     <div className="admin-layout">
-      {/* ✅ 상품 리스트 */}
       <div className="product-list-panel">
         <h2>📦 등록된 상품</h2>
         <input type="text" placeholder="상품명 검색" value={search} onChange={e => setSearch(e.target.value)} />
@@ -217,7 +158,6 @@ const AdminPage = () => {
         </div>
       </div>
 
-      {/* ✅ 상품 추가 */}
       <div className="product-form-panel">
         <h2>➕ 상품 추가</h2>
         <form className="product-form" onSubmit={handleAddProduct}>
@@ -236,28 +176,6 @@ const AdminPage = () => {
         </form>
       </div>
 
-      {/* ✅ 배너 관리 */}
-      <div className="promo-section">
-        <h2>🎫 이벤트 배너 관리</h2>
-        <input type="text" placeholder="제목" value={newPromoTitle} onChange={e => setNewPromoTitle(e.target.value)} />
-        <input type="text" placeholder="설명" value={newPromoDesc} onChange={e => setNewPromoDesc(e.target.value)} />
-        <input type="file" onChange={handlePromoImageUpload} />
-        {newPromoImage && <img src={newPromoImage} alt="미리보기" />}
-        <button onClick={handleAddPromoCard}>배너 추가</button>
-        <button onClick={handleSavePromoCards}>전체 저장</button>
-        <div className="promo-list">
-          {promoCards.map((card, index) => (
-            <div key={index} className="promo-card">
-              <img src={card.image} alt="배너" />
-              <strong>{card.title}</strong>
-              <p>{card.description}</p>
-              <button onClick={() => handleDeletePromoCard(index)}>삭제</button>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* ✅ 이미지 미리보기 */}
       {editingProduct && (
         <div className="popup-overlay">
           <div className="edit-popup-card">
