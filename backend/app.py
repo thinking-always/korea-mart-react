@@ -23,7 +23,7 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 # ✅ Flask 인스턴스 + CORS
 app = Flask(__name__, static_folder=BUILD_FOLDER, static_url_path='')
-CORS(app)
+CORS(app, origins="*")
 
 # ✅ 파일 확장자 검사
 def allowed_file(filename):
