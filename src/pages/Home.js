@@ -78,15 +78,16 @@ const Home = () => {
   };
 
   return (
-    <div>
+    <main className="home">
       <EventBannerSlider />
 
-      <h2>🎉 Event Banners</h2>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px' }}>
+      <h2 className="home-title">🎉 Event Banners</h2>
+
+      <section className="banner-container">
         {promoCards.map((card, i) => (
           <div
             key={card.id || card.filename || i}
-            style={{ border: '1px solid #ccc', padding: '10px', maxWidth: '300px' }}
+            className="banner-card"
           >
             {isAdmin ? (
               <>
@@ -118,15 +119,18 @@ const Home = () => {
               <img
                 src={card.image}
                 alt="Banner"
-                style={{ width: '200px', marginTop: '10px', borderRadius: '6px' }}
               />
             )}
           </div>
         ))}
-      </div>
+      </section>
 
-      {isAdmin && <PosterUploader />}
-    </div>
+      {isAdmin && (
+        <section className="poster-uploader">
+          <PosterUploader />
+        </section>
+      )}
+    </main>
   );
 };
 

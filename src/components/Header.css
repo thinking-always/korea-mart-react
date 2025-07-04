@@ -1,74 +1,154 @@
+/* Header.css */
+
 .header {
-  position: sticky;
-  top: 0;
-  background: #ffffff; /* 완전한 흰색 */
-  border-bottom: 1px solid #ddd; /* 아래 구분선 추가 */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* 부드러운 그림자 */
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem;
-  z-index: 999;
+  height: 80px;
+  padding: 0 40px;
+  background: #ffffff;
+  border-bottom: 1px solid #eaeaea;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
 
-.logo {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #000; /* 검정색 글자 */
-}
-
-.logo img {
-  height: 60px; /* 크기 키움 */
+.header-left .logo img {
+  display: block;
+  height: 60px;
   object-fit: contain;
 }
 
-.header-right a,
-.logout {
-  margin-left: 1rem;
-  color: #111; /* 어두운 회색/검정 */
-  font-weight: bold;
-  text-decoration: none;
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
 }
 
-.logout {
+.header-right a {
+  text-decoration: none;
+  color: #111;
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: color 0.2s;
+}
+
+.header-right a:hover {
+  color: #b50014; /* Korea Mart Red */
+}
+
+.admin-link {
+  font-weight: bold;
+}
+
+.profile-wrapper {
+  position: relative;
+}
+
+.profile-btn {
+  border: none;
+  background: #f5f5f5;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.profile-btn:hover {
+  background: #e2e2e2;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 120%;
+  right: 0;
+  background: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  min-width: 140px;
+  overflow: hidden;
+}
+
+.dropdown-menu button {
+  width: 100%;
   background: none;
   border: none;
+  text-align: left;
+  padding: 10px 16px;
+  font-size: 0.9rem;
+  color: #111;
   cursor: pointer;
+  transition: background 0.2s;
 }
 
-.user {
-  margin-left: 1rem;
+.dropdown-menu button:hover {
+  background: #f8f8f8;
 }
 
-.profile-button {
-  padding: 0.4rem 0.8rem;
-  background-color: #ff3d00;
-  color: white;
-  border-radius: 8px;
-  text-decoration: none;
-  margin: 0 0.5rem;
+.dropdown-menu .logout-btn {
+  color: #b50014;
   font-weight: bold;
 }
-.profile-button:hover {
-  background-color: #e23200;
-}
 
-.login-btn,
-.logout {
+.login-btn {
   background: none;
-  border: none;
+  border: 1px solid #b50014;
+  color: #b50014;
+  padding: 6px 14px;
+  border-radius: 4px;
   cursor: pointer;
-  color: #111; /* 글자 진하게 */
-  font-weight: bold;
+  font-size: 0.9rem;
+  transition: all 0.2s;
 }
 
-.login-btn:hover,
-.logout:hover {
-  text-decoration: underline;
+.login-btn:hover {
+  background: #b50014;
+  color: #fff;
 }
 
-.nav a {
-  margin-left: 20px;
-  text-decoration: none;
-  color: #111; /* 검정 */
+.profile-btn {
+  border: 1px solid #b50014;
+  background: #fff;
+  border-radius: 50%;
+  width: 38px;
+  height: 38px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
+
+.profile-btn:hover {
+  background: #b50014;
+  color: #fff;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.login-btn {
+  background: none;
+  border: 1px solid #b50014;
+  color: #b50014;
+  padding: 6px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.login-btn:hover {
+  background: #b50014;
+  color: #fff;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+

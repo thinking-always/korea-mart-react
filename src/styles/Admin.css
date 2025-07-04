@@ -1,23 +1,74 @@
+/* === Reset === */
+body {
+  margin: 0;
+  font-family: 'Noto Sans KR', sans-serif;
+  color: #111;
+  background: #f8f8f8;
+}
+
+/* === Layout === */
 .admin-layout {
   display: flex;
   height: 100vh;
-  padding: 1rem;
-  box-sizing: border-box;
-  background-color: #fdfdfd;
+  overflow: hidden;
 }
 
+/* === Left Panel (List) === */
 .product-list-panel {
   flex: 1;
-  padding: 1rem;
+  padding: 2rem;
   overflow-y: auto;
+  background: #fff;
   border-right: 1px solid #ddd;
 }
 
 .product-list-panel h2 {
   margin-bottom: 1rem;
-  color: #ff5722;
+  font-size: 1.4rem;
+  color: #e53935;
 }
 
+.product-list-panel input[type="text"] {
+  width: 100%;
+  max-width: 400px;
+  padding: 0.6rem 1rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+  color: #111;
+}
+
+.category-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.category-buttons button {
+  padding: 0.4rem 0.8rem;
+  border: 1px solid #ccc;
+  background: #f5f5f5;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+  color: #111;
+}
+
+.category-buttons button.active {
+  background: #e53935;
+  color: #fff;
+  border-color: #e53935;
+}
+
+.category-buttons button:hover {
+  background: #d32f2f;
+  color: #fff;
+}
+
+/* === Product List === */
 .product-list {
   display: flex;
   flex-direction: column;
@@ -27,39 +78,68 @@
 .product-row {
   display: flex;
   align-items: center;
-  padding: 0.1rem;
-  background-color: #fff;
-  border: 1px solid #ddd;
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
   gap: 1rem;
-  min-height: 30px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 0.6rem 1rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
 
-.row-image {
+.product-row:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.07);
+}
+
+.row-image-wrapper {
+  flex-shrink: 0;
+}
+
+.row-thumb {
   width: 60px;
-  height: 30px;
+  height: 60px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
   object-fit: cover;
-  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.row-thumb:hover {
+  transform: scale(1.05);
 }
 
 .row-info {
   flex: 1;
   font-size: 0.95rem;
+  color: #111;
 }
 
+.product-row button {
+  background: none;
+  border: 1px solid #bbb;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  color: #111;
+}
+
+.product-row button:hover {
+  background: #f5f5f5;
+}
+
+/* === Right Panel (Form) === */
 .product-form-panel {
-  width: 20%;
-  min-width: 250px;
-  padding: 1rem;
-  background-color: #fffaf3;
-  box-shadow: -1px 0 5px rgba(0,0,0,0.05);
-  display: flex;
-  flex-direction: column;
+  width: 300px;
+  background: #fffefc;
+  padding: 2rem 1.5rem;
+  border-left: 1px solid #ddd;
 }
 
 .product-form-panel h2 {
   margin-bottom: 1rem;
+  font-size: 1.4rem;
   color: #4caf50;
 }
 
@@ -70,34 +150,46 @@
 }
 
 .product-form input,
-.product-form select {
-  padding: 0.5rem;
+.product-form select,
+.product-form textarea {
+  padding: 0.6rem 0.8rem;
   border: 1px solid #ccc;
-  border-radius: 0.4rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  color: #111;
 }
 
 .product-form button {
-  padding: 0.6rem;
-  background-color: #4caf50;
-  color: white;
+  padding: 0.7rem;
+  background: #4caf50;
+  color: #fff;
   border: none;
-  border-radius: 0.4rem;
-  cursor: pointer;
+  border-radius: 6px;
   font-weight: bold;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.2s;
 }
 
 .product-form button:hover {
-  background-color: #43a047;
+  background: #43a047;
 }
 
-/* 수정 팝업 오버레이 */
+.preview-thumb {
+  width: 100px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+/* === Popup === */
 .popup-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(0,0,0,0.4);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -107,41 +199,69 @@
 .edit-popup-card {
   background: #fff;
   padding: 24px;
-  border-radius: 12px;
-  width: 400px;
-  box-shadow: 0 0 12px rgba(0,0,0,0.2);
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.popup-buttons {
-  display: flex;
-  justify-content: space-between;
-}
-
-.edit-popup-card {
-  background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-  padding: 24px;
-  width: 500px;
+  border-radius: 10px;
+  width: 480px;
   max-height: 90vh;
   overflow-y: auto;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
 }
 
 .edit-popup-card input,
 .edit-popup-card select,
 .edit-popup-card textarea {
   width: 100%;
-  padding: 10px;
+  padding: 0.6rem 0.8rem;
   margin-bottom: 12px;
-  border-radius: 6px;
   border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  color: #111;
 }
 
 .popup-buttons {
   display: flex;
   justify-content: space-between;
-  margin-top: 16px;
+}
+
+.popup-buttons button {
+  background: #4caf50;
+  border: none;
+  color: #fff;
+  padding: 0.6rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+.popup-buttons button:hover {
+  background: #43a047;
+}
+
+.popup-buttons button:last-child {
+  background: #bbb;
+  color: #111;
+}
+
+.popup-buttons button:last-child:hover {
+  background: #999;
+}
+
+/* === Image Modal === */
+.image-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.image-modal-content img {
+  max-width: 80%;
+  max-height: 80%;
+  border-radius: 8px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.4);
 }

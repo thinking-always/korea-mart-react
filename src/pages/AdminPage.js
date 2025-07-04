@@ -4,6 +4,7 @@ import axios from 'axios';
 import BASE_URL from '../config';
 
 const AdminPage = () => {
+  // ✅ 상품 관련 상태
   const [products, setProducts] = useState([]);
   const [name, setName] = useState('');
   const [price, setPrice] = useState('');
@@ -24,12 +25,31 @@ const AdminPage = () => {
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
 
+  const [previewImage, setPreviewImage] = useState(null);
+
+  // ✅ 배너 관련 상태
+  const [promoCards, setPromoCards] = useState([]);
+  const [newPromoTitle, setNewPromoTitle] = useState('');
+  const [newPromoDesc, setNewPromoDesc] = useState('');
+  const [newPromoImage, setNewPromoImage] = useState('');
+
+  const categories = [
+    'all', 'noodles', 'beverages', 'sides', 'cosmetics', 'sauces', 'snacks',
+    'ready-meals', 'frozen', 'vegetables', 'cleaning', 'rice', 'daily'
+  ];
+
+  // ✅ 데이터 불러오기
   useEffect(() => {
     axios.get(`${BASE_URL}/api/products`)
       .then(res => setProducts(res.data))
       .catch(err => console.error(err));
+
+    axios.get(`${BASE_URL}/api/promo-cards`)
+      .then(res => setPromoCards(res.data))
+      .catch(err => console.error(err));
   }, []);
 
+  // ✅ 상품 추가
   const handleAddProduct = async (e) => {
     e.preventDefault();
     if (!name.trim() || !price.trim() || !category.trim()) {
@@ -40,16 +60,13 @@ const AdminPage = () => {
     try {
       const res = await axios.post(`${BASE_URL}/api/products`, newProduct);
       setProducts([...products, res.data]);
-      setName('');
-      setPrice('');
-      setImage('');
-      setCategory('');
-      setDescription('');
+      setName(''); setPrice(''); setImage(''); setCategory(''); setDescription('');
     } catch (err) {
       console.error(err);
     }
   };
 
+  // ✅ 상품 삭제
   const handleDelete = async (id) => {
     try {
       await axios.delete(`${BASE_URL}/api/products/${id}`);
@@ -59,6 +76,7 @@ const AdminPage = () => {
     }
   };
 
+  // ✅ 이미지 업로드
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     const formData = new FormData();
@@ -68,12 +86,13 @@ const AdminPage = () => {
       const res = await axios.post(`${BASE_URL}/api/upload`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
-      setImage(res.data.imageUrl); // Cloudinary URL 저장
+      setImage(res.data.imageUrl);
     } catch (err) {
       console.error('이미지 업로드 실패:', err);
     }
   };
 
+  // ✅ 수정 팝업 열기
   const openEditPopup = (product) => {
     setEditingProduct(product);
     setEditForm({
@@ -115,10 +134,47 @@ const AdminPage = () => {
     }
   };
 
-  const categories = [
-    'all', 'noodles', 'beverages', 'sides', 'cosmetics', 'sauces', 'snacks',
-    'ready-meals', 'frozen', 'vegetables', 'cleaning', 'rice', 'daily'
-  ];
+  // ✅ 배너 이미지 업로드
+  const handlePromoImageUpload = async (e) => {
+    const file = e.target.files[0];
+    const formData = new FormData();
+    formData.append('file', file);
+    try {
+      const res = await axios.post(`${BASE_URL}/api/upload-banner`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      setNewPromoImage(res.data.image);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // ✅ 배너 추가
+  const handleAddPromoCard = () => {
+    if (!newPromoTitle.trim()) return alert('제목 필수');
+    const updated = [...promoCards, {
+      title: newPromoTitle,
+      description: newPromoDesc,
+      image: newPromoImage
+    }];
+    setPromoCards(updated);
+    setNewPromoTitle('');
+    setNewPromoDesc('');
+    setNewPromoImage('');
+  };
+
+  // ✅ 배너 저장
+  const handleSavePromoCards = () => {
+    axios.put(`${BASE_URL}/api/promo-cards`, promoCards)
+      .then(() => alert('저장 완료'))
+      .catch(err => console.error(err));
+  };
+
+  // ✅ 배너 삭제
+  const handleDeletePromoCard = (index) => {
+    const updated = promoCards.filter((_, i) => i !== index);
+    setPromoCards(updated);
+  };
 
   const filteredProducts = products.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(search.toLowerCase());
@@ -128,44 +184,31 @@ const AdminPage = () => {
 
   return (
     <div className="admin-layout">
+      {/* ✅ 상품 리스트 */}
       <div className="product-list-panel">
         <h2>📦 등록된 상품</h2>
-
-        <input
-          type="text"
-          placeholder="상품명으로 검색"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          style={{ padding: '0.5rem', width: '100%', maxWidth: '400px', marginBottom: '1rem' }}
-        />
-        <div style={{ marginBottom: '1rem', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+        <input type="text" placeholder="상품명 검색" value={search} onChange={e => setSearch(e.target.value)} />
+        <div className="category-buttons">
           {categories.map(cat => (
             <button
               key={cat}
               className={selectedCategory === cat ? 'active' : ''}
               onClick={() => setSelectedCategory(cat)}
-              style={{
-                padding: '0.4rem 0.8rem',
-                borderRadius: '5px',
-                border: 'none',
-                background: selectedCategory === cat ? '#ff3d00' : '#eee',
-                color: selectedCategory === cat ? '#fff' : '#000',
-                cursor: 'pointer'
-              }}
             >
               {cat}
             </button>
           ))}
         </div>
-
         <div className="product-list">
           {filteredProducts.map(product => (
             <div className="product-row" key={product.id}>
-              {product.image && (
-                <img src={product.image} alt={product.name} className="row-image" />
-              )}
+              <div className="row-image-wrapper">
+                {product.image && (
+                  <img src={product.image} alt={product.name} className="row-thumb" onClick={() => setPreviewImage(product.image)} />
+                )}
+              </div>
               <div className="row-info">
-                <strong>{product.name}</strong> | {product.price} | [{product.category}]
+                <strong>{product.name}</strong> | {product.price}원 | [{product.category}]
               </div>
               <button onClick={() => openEditPopup(product)}>수정</button>
               <button onClick={() => handleDelete(product.id)}>삭제</button>
@@ -174,13 +217,14 @@ const AdminPage = () => {
         </div>
       </div>
 
+      {/* ✅ 상품 추가 */}
       <div className="product-form-panel">
         <h2>➕ 상품 추가</h2>
         <form className="product-form" onSubmit={handleAddProduct}>
           <input type="text" placeholder="상품명" value={name} onChange={e => setName(e.target.value)} />
           <input type="text" placeholder="가격" value={price} onChange={e => setPrice(e.target.value)} />
           <input type="file" onChange={handleImageUpload} />
-          {image && <img src={image} alt="미리보기" style={{ width: '100px' }} />}
+          {image && <img src={image} alt="미리보기" className="preview-thumb" />}
           <select value={category} onChange={e => setCategory(e.target.value)}>
             <option value="">카테고리 선택</option>
             {categories.slice(1).map(c => (
@@ -192,6 +236,28 @@ const AdminPage = () => {
         </form>
       </div>
 
+      {/* ✅ 배너 관리 */}
+      <div className="promo-section">
+        <h2>🎫 이벤트 배너 관리</h2>
+        <input type="text" placeholder="제목" value={newPromoTitle} onChange={e => setNewPromoTitle(e.target.value)} />
+        <input type="text" placeholder="설명" value={newPromoDesc} onChange={e => setNewPromoDesc(e.target.value)} />
+        <input type="file" onChange={handlePromoImageUpload} />
+        {newPromoImage && <img src={newPromoImage} alt="미리보기" />}
+        <button onClick={handleAddPromoCard}>배너 추가</button>
+        <button onClick={handleSavePromoCards}>전체 저장</button>
+        <div className="promo-list">
+          {promoCards.map((card, index) => (
+            <div key={index} className="promo-card">
+              <img src={card.image} alt="배너" />
+              <strong>{card.title}</strong>
+              <p>{card.description}</p>
+              <button onClick={() => handleDeletePromoCard(index)}>삭제</button>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ✅ 이미지 미리보기 */}
       {editingProduct && (
         <div className="popup-overlay">
           <div className="edit-popup-card">
@@ -216,6 +282,14 @@ const AdminPage = () => {
               <button onClick={handleEditSave}>저장</button>
               <button onClick={() => setEditingProduct(null)}>닫기</button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {previewImage && (
+        <div className="image-modal" onClick={() => setPreviewImage(null)}>
+          <div className="image-modal-content">
+            <img src={previewImage} alt="크게보기" />
           </div>
         </div>
       )}

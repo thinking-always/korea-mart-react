@@ -3,14 +3,17 @@ from flask_cors import CORS
 import os, json, cloudinary, cloudinary.uploader
 from dotenv import load_dotenv
 
+# ✅ .env 로드
 load_dotenv()
 
+# ✅ Cloudinary 설정
 cloudinary.config(
     cloud_name=os.getenv('CLOUDINARY_CLOUD_NAME'),
     api_key=os.getenv('CLOUDINARY_API_KEY'),
     api_secret=os.getenv('CLOUDINARY_API_SECRET')
 )
 
+# ✅ 경로 상수
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 BUILD_FOLDER = os.path.join(BASE_DIR, 'build')
 DATA_FILE = os.path.join(BASE_DIR, 'products.json')
@@ -18,8 +21,13 @@ PROMO_CARDS_FILE = os.path.join(BASE_DIR, 'promo_cards.json')
 BANNERS_FILE = os.path.join(BASE_DIR, 'banners.json')
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
+# ✅ Flask 인스턴스 + CORS 한 번만!
 app = Flask(__name__, static_folder=BUILD_FOLDER, static_url_path='')
-CORS(app, origins="*", supports_credentials=True)
+CORS(app, origins=[
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "https://korea-mart-react.vercel.app"
+])
 
 # ✅ 파일 확장자 검사
 def allowed_file(filename):
@@ -124,7 +132,7 @@ def upload_banner():
         json.dump(banners, f)
     return jsonify(new_banner), 200
 
-# ✅ 포스터 조회 — 중복 절대 없음!!
+# ✅ 포스터 조회
 @app.route('/api/banners', methods=['GET'])
 def get_banners():
     if not os.path.exists(BANNERS_FILE):
@@ -134,7 +142,7 @@ def get_banners():
             data = json.load(f)
         return jsonify(data)
     except Exception:
-        return jsonify([])  # 실패해도 빈 배열
+        return jsonify([])
 
 # ✅ 포스터 삭제
 @app.route('/api/delete-banner', methods=['POST'])

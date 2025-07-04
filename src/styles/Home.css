@@ -1,57 +1,128 @@
-.page-wrapper {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 40px 20px;
+/* Home.css */
+
+/* 기본 폰트 & 배경 */
+body {
+  font-family: 'Noto Sans KR', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  background: #fdfdfc;
+  color: #111; /* 모든 텍스트 기본 검정 */
+  margin: 0;
+  padding: 0;
 }
 
-.product-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-}
-
-.product-card {
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  overflow: hidden;
-  background: #fff;
-  box-shadow: 0 0 10px rgba(0,0,0,0.05);
-}
-
-.card-image {
-  height: 180px;
-  background: #f0f0f0;
-  position: relative;
+/* 메인 타이틀 */
+.home-title {
   text-align: center;
+  margin: 50px 0 30px;
+  font-size: 2.4rem;
+  color: #111; /* 검정 */
+  letter-spacing: -0.5px;
 }
 
-.card-image img {
+/* 배너 래퍼 그리드 */
+.banner-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 30px;
+  max-width: 1200px;
+  margin: 0 auto 60px;
+  padding: 0 40px;
+}
+
+/* 개별 카드 */
+.banner-card {
+  background: #fff;
+  border-radius: 10px;
+  border: 1px solid #eee;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.banner-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+/* 관리자 input & textarea */
+.banner-card input[type="text"],
+.banner-card textarea {
   width: 100%;
-  height: 100%;
+  padding: 10px 14px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  margin: 8px 0;
+  font-size: 0.95rem;
+  color: #111; /* 입력 텍스트 검정 */
+  transition: border 0.2s;
+}
+
+.banner-card input[type="text"]:focus,
+.banner-card textarea:focus {
+  border: 1px solid #b50014; /* 포인트 레드 */
+  outline: none;
+}
+
+.banner-card input[type="file"] {
+  margin: 8px 0;
+}
+
+.banner-card h3 {
+  margin: 16px 0 8px;
+  padding: 0 16px;
+  font-size: 1.3rem;
+  color: #111; /* 카드 제목 검정 */
+}
+
+.banner-card p {
+  margin: 0 0 16px;
+  padding: 0 16px;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: #222; /* 카드 설명 진회색 */
+}
+
+.banner-card img {
+  width: 100%;
+  display: block;
   object-fit: cover;
+  border-bottom: 1px solid #eee;
 }
 
-.card-image input {
-  position: absolute;
-  bottom: 8px;
-  left: 50%;
-  transform: translateX(-50%);
+/* PosterUploader 영역 */
+.poster-uploader {
+  max-width: 1200px;
+  margin: 40px auto 80px;
+  padding: 0 40px;
 }
 
-.placeholder {
-  line-height: 180px;
-  color: #999;
+/* 버튼 스타일 */
+button {
+  background: #b50014; /* 포인트 컬러 */
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  font-size: 0.95rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s ease;
 }
 
-.card-text {
-  padding: 10px;
+button:hover {
+  background: #930011;
 }
 
-.card-text input,
-.card-text textarea {
-  width: 100%;
-  margin-bottom: 6px;
-  padding: 8px;
-  font-size: 14px;
-  box-sizing: border-box;
+/* 반응형 */
+@media (max-width: 768px) {
+  .home-title {
+    font-size: 2rem;
+  }
+  .banner-container {
+    padding: 0 20px;
+    gap: 20px;
+  }
+  .poster-uploader {
+    padding: 0 20px;
+  }
 }

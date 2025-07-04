@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import '../styles/ProductDetail.css';
-import BASE_URL from '../config'; // ✅ config에서 import
+import BASE_URL from '../config';
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -28,14 +28,14 @@ const ProductDetail = () => {
 
         <div className="detail-main">
           <img
-            src={`${BASE_URL}${product.image}`}
+            src={product.image?.startsWith('http') ? product.image : `${BASE_URL}${product.image}`}
             alt={product.name}
             className="detail-image"
           />
 
           <div className="detail-info">
             <h2 className="detail-name">{product.name}</h2>
-            <p className="detail-price">{product.price}</p>
+            <p className="detail-price">{product.price} 원</p>
             <button className="add-to-cart">장바구니에 담기</button>
           </div>
         </div>
