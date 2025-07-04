@@ -21,7 +21,7 @@ PROMO_CARDS_FILE = os.path.join(BASE_DIR, 'promo_cards.json')
 BANNERS_FILE = os.path.join(BASE_DIR, 'banners.json')
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
-# ✅ Flask 인스턴스 + CORS 한 번만!
+# ✅ Flask 인스턴스 + CORS
 app = Flask(__name__, static_folder=BUILD_FOLDER, static_url_path='')
 CORS(app, origins=[
     "http://localhost:3000",
@@ -85,7 +85,7 @@ def update_product(product_id):
         json.dump(products, f)
     return jsonify(updated)
 
-# ✅ 메인 배너 관리
+# ✅ promo-cards GET
 @app.route('/api/promo-cards', methods=['GET'])
 def get_promo_cards():
     if not os.path.exists(PROMO_CARDS_FILE):
@@ -93,21 +93,27 @@ def get_promo_cards():
     with open(PROMO_CARDS_FILE, 'r') as f:
         return jsonify(json.load(f))
 
+# ✅ promo-cards PUT (안전 버전으로 수정)
 @app.route('/api/promo-cards', methods=['PUT'])
 def save_promo_cards():
     cards = request.get_json()
+    if not cards or not isinstance(cards, list):
+        return jsonify({'error': 'Invalid or empty data'}), 400
     with open(PROMO_CARDS_FILE, 'w') as f:
         json.dump(cards, f)
     return jsonify({'message': 'Promo cards saved.'}), 200
 
-# ✅ Cloudinary 상품 이미지 업로드
+# ✅ Cloudinary 상품 이미지 업로드 (filename 같이 반환)
 @app.route('/api/upload', methods=['POST'])
 def upload_image():
     if 'file' not in request.files:
         return jsonify({'error': 'No file part'}), 400
     file = request.files['file']
     result = cloudinary.uploader.upload(file)
-    return jsonify({'imageUrl': result['secure_url']})
+    return jsonify({
+        'imageUrl': result['secure_url'],
+        'filename': result['public_id']  # ✅ 삭제용 public_id 같이 반환
+    })
 
 # ✅ 포스터 업로드
 @app.route('/api/upload-banner', methods=['POST'])

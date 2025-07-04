@@ -1,34 +1,32 @@
-/* Home.css */
-
-/* 기본 폰트 & 배경 */
+/* ✅ 기본 폰트 & 배경 */
 body {
   font-family: 'Noto Sans KR', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   background: #fdfdfc;
-  color: #111; /* 모든 텍스트 기본 검정 */
+  color: #111;
   margin: 0;
   padding: 0;
 }
 
-/* 메인 타이틀 */
+/* ✅ 메인 타이틀 */
 .home-title {
   text-align: center;
   margin: 50px 0 30px;
   font-size: 2.4rem;
-  color: #111; /* 검정 */
+  color: #111;
   letter-spacing: -0.5px;
 }
 
-/* 배너 래퍼 그리드 */
+/* ✅ 배너 래퍼 그리드 */
 .banner-container {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 30px;
   max-width: 1200px;
   margin: 0 auto 60px;
   padding: 0 40px;
 }
 
-/* 개별 카드 */
+/* ✅ 개별 배너 카드 */
 .banner-card {
   background: #fff;
   border-radius: 10px;
@@ -45,7 +43,7 @@ body {
   box-shadow: 0 10px 20px rgba(0,0,0,0.1);
 }
 
-/* 관리자 input & textarea */
+/* ✅ 관리자 input & textarea */
 .banner-card input[type="text"],
 .banner-card textarea {
   width: 100%;
@@ -54,13 +52,14 @@ body {
   border-radius: 6px;
   margin: 8px 0;
   font-size: 0.95rem;
-  color: #111; /* 입력 텍스트 검정 */
+  color: #111;
   transition: border 0.2s;
+  box-sizing: border-box;
 }
 
 .banner-card input[type="text"]:focus,
 .banner-card textarea:focus {
-  border: 1px solid #b50014; /* 포인트 레드 */
+  border: 1px solid #b50014;
   outline: none;
 }
 
@@ -72,7 +71,7 @@ body {
   margin: 16px 0 8px;
   padding: 0 16px;
   font-size: 1.3rem;
-  color: #111; /* 카드 제목 검정 */
+  color: #111;
 }
 
 .banner-card p {
@@ -80,26 +79,28 @@ body {
   padding: 0 16px;
   font-size: 0.95rem;
   line-height: 1.5;
-  color: #222; /* 카드 설명 진회색 */
+  color: #222;
 }
 
 .banner-card img {
   width: 100%;
+  height: auto;
   display: block;
   object-fit: cover;
   border-bottom: 1px solid #eee;
+  aspect-ratio: 4/3; /* ✅ 모바일에서 일정 비율 유지 */
 }
 
-/* PosterUploader 영역 */
+/* ✅ PosterUploader 영역 */
 .poster-uploader {
   max-width: 1200px;
   margin: 40px auto 80px;
   padding: 0 40px;
 }
 
-/* 버튼 스타일 */
+/* ✅ 버튼 */
 button {
-  background: #b50014; /* 포인트 컬러 */
+  background: #b50014;
   color: #fff;
   border: none;
   padding: 10px 20px;
@@ -113,24 +114,10 @@ button:hover {
   background: #930011;
 }
 
-/* 반응형 */
-@media (max-width: 768px) {
-  .home-title {
-    font-size: 2rem;
-  }
-  .banner-container {
-    padding: 0 20px;
-    gap: 20px;
-  }
-  .poster-uploader {
-    padding: 0 20px;
-  }
-}
-
-/* 📌 제품 그리드 영역 */
+/* ✅ 제품 그리드 */
 .product-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 30px;
   max-width: 1200px;
   margin: 0 auto 60px;
@@ -162,6 +149,7 @@ button:hover {
   font-size: 0.95rem;
   color: #111;
   transition: border 0.2s;
+  box-sizing: border-box;
 }
 
 .product-card input[type="text"]:focus,
@@ -176,8 +164,9 @@ button:hover {
 
 .product-card img {
   width: 100%;
-  display: block;
+  height: auto;
   object-fit: cover;
+  aspect-ratio: 1/1; /* ✅ 정사각형 비율 유지 */
 }
 
 .product-card .placeholder {
@@ -205,10 +194,17 @@ button:hover {
   color: #222;
 }
 
-/* 반응형 추가 */
+/* ✅ 반응형 */
 @media (max-width: 768px) {
+  .home-title {
+    font-size: 2rem;
+  }
+  .banner-container,
   .product-grid {
     padding: 0 20px;
     gap: 20px;
+  }
+  .poster-uploader {
+    padding: 0 20px;
   }
 }

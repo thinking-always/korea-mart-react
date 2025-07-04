@@ -22,6 +22,7 @@ const Home = () => {
         if (Array.isArray(data) && data.length > 0) {
           setPromoCards(data);
         } else {
+          console.warn('📂 No server data, using initialPromoCards');
           setPromoCards(initialPromoCards);
           saveCards(initialPromoCards);
         }
@@ -33,6 +34,10 @@ const Home = () => {
   }, []);
 
   const saveCards = (cards) => {
+    if (!cards || !Array.isArray(cards) || cards.length === 0) {
+      console.warn('🚫 Cards is empty, skip saving');
+      return;
+    }
     fetch(`${BASE_URL}/api/promo-cards`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -50,25 +55,20 @@ const Home = () => {
 
   const handleImageUpload = async (id, file) => {
     if (!file) return;
-
     const formData = new FormData();
     formData.append('file', file);
-
     try {
       const res = await fetch(`${BASE_URL}/api/upload`, {
         method: 'POST',
         body: formData
       });
-
       if (!res.ok) {
         console.error('Image upload failed.');
         return;
       }
-
       const data = await res.json();
-
       const updated = promoCards.map(card =>
-        card.id === id ? { ...card, image: data.imageUrl } : card
+        card.id === id ? { ...card, image: data.imageUrl, filename: data.filename } : card
       );
       setPromoCards(updated);
       saveCards(updated);
@@ -80,32 +80,27 @@ const Home = () => {
   return (
     <main className="home">
       <EventBannerSlider />
-
       <h2 className="home-title">🎉 Event Banners</h2>
-
       <section className="banner-container">
         {promoCards.map((card, i) => (
-          <div
-            key={card.id || card.filename || i}
-            className="banner-card"
-          >
+          <div key={card.id || i} className="banner-card">
             {isAdmin ? (
               <>
                 <input
                   type="text"
                   value={card.title}
-                  onChange={e => handleChange(card.id || i, 'title', e.target.value)}
+                  onChange={e => handleChange(card.id, 'title', e.target.value)}
                   placeholder="Title"
                 />
                 <textarea
                   value={card.description}
-                  onChange={e => handleChange(card.id || i, 'description', e.target.value)}
+                  onChange={e => handleChange(card.id, 'description', e.target.value)}
                   placeholder="Description"
                 />
                 <input
                   type="file"
                   accept="image/*"
-                  onChange={e => handleImageUpload(card.id || i, e.target.files[0])}
+                  onChange={e => handleImageUpload(card.id, e.target.files[0])}
                 />
               </>
             ) : (
@@ -114,17 +109,12 @@ const Home = () => {
                 <p>{card.description}</p>
               </>
             )}
-
             {card.image && (
-              <img
-                src={card.image}
-                alt="Banner"
-              />
+              <img src={card.image} alt="Banner" />
             )}
           </div>
         ))}
       </section>
-
       {isAdmin && (
         <section className="poster-uploader">
           <PosterUploader />

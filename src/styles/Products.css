@@ -2,18 +2,19 @@
   padding: 2rem;
 }
 
-/* 전체 레이아웃: 카테고리 왼쪽 + 상품 오른쪽 */
+/* ✅ 전체 레이아웃: PC에선 flex, 모바일에선 column */
 .products-layout {
   display: flex;
   gap: 2rem;
+  flex-wrap: wrap; /* ✅ 줄바꿈 허용 */
 }
 
-/* 왼쪽 카테고리 버튼들 */
 .category-sidebar {
   width: 180px;
   display: flex;
   flex-direction: column;
   gap: 10px;
+  flex-shrink: 0; /* ✅ shrink 방지 */
 }
 
 .category-sidebar button {
@@ -30,7 +31,7 @@
   color: white;
 }
 
-/* 오른쪽 상품 그리드 */
+/* ✅ 상품 그리드: flex: 1로 확장 */
 .product-grid {
   flex: 1;
   display: grid;
@@ -38,7 +39,7 @@
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
 }
 
-/* 미디어 쿼리로 더 넓은 화면에서 5개, 좁은 화면에서 3개 */
+/* ✅ 더 큰 화면에서 5개, 중간 화면 3개는 유지 */
 @media (min-width: 1024px) {
   .product-grid {
     grid-template-columns: repeat(5, 1fr);
@@ -48,6 +49,29 @@
 @media (max-width: 1023px) {
   .product-grid {
     grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* ✅ 모바일에서 카테고리 세로 → 위로 */
+@media (max-width: 768px) {
+  .products-layout {
+    flex-direction: column;
+  }
+
+  .category-sidebar {
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .category-sidebar button {
+    flex: 1;
+    text-align: center;
+  }
+
+  .product-grid {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   }
 }
 
@@ -72,6 +96,7 @@
 .card-image img {
   max-width: 100%;
   max-height: 100%;
+  object-fit: contain; /* ✅ 이미지 비율 유지 */
 }
 
 .card-info {
