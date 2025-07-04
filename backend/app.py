@@ -23,7 +23,15 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 # ✅ Flask 인스턴스 + CORS
 app = Flask(__name__, static_folder=BUILD_FOLDER, static_url_path='')
-CORS(app, origins="*")
+from flask_cors import CORS
+
+CORS(app,
+  origins=["https://korea-mart-react.vercel.app"],
+  supports_credentials=True,
+  allow_headers=["Content-Type", "Authorization"],
+  methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+)
+
 
 # ✅ 파일 확장자 검사
 def allowed_file(filename):
